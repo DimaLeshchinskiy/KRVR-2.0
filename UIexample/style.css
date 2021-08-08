@@ -1,0 +1,128 @@
+body {
+  overflow: hidden;
+}
+
+th:nth-child(1) {
+  padding-left: 42px !important;
+}
+
+td:nth-child(1) {
+  padding-left: 10px !important;
+}
+
+.leftBar {
+  width: 60px;
+  height: 100%;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #ffffffeb;
+  border-right: solid 1px #cecece;
+}
+
+.rightBar {
+  width: 84px;
+  height: 100%;
+  position: fixed;
+  right: 0px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffffeb;
+  border-left: solid 1px #cecece;
+  transition: width 0.1s;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab {
+  width: 300px;
+}
+
+.tab-content {
+  padding: 3px;
+}
+
+.tab.controls {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-pane.active {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+}
+
+.fileInfo {
+  min-height: 250px;
+}
+
+table {
+  width: 300px;
+  height: 100px;
+}
+
+tbody tr:hover {
+  background-color: #d0d0d0;
+}
+
+.vertical_hr {
+  border-left: 1px solid #a7a7a7;
+}
+
+.list-group-item {
+  background-color: transparent;
+}
+
+.btn-group {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.nav-tabs button:hover {
+  background-color: #d0d0d0;
+}
+
+.btn:hover {
+  background-color: #9d9d9d;
+}
+
+.ghostButtonsUp {
+  position: absolute;
+  top: 3px;
+  left: 65px;
+}
+
+.ghostButtonsDown {
+  position: absolute;
+  bottom: 3px;
+  left: 65px;
+}
+
+.rightBar:hover {
+  width: 300px;
+}
+
+.rightBar:hover th:nth-child(1), .rightBar:hover td:nth-child(1) {
+  padding-left: 0px !important;
+  text-align: center;
+}
+
+/*Scrollbar*/
+::-webkit-scrollbar {
+  height: 12px;
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a7a7a7;
+  -webkit-border-radius: 1ex;
+  -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
+}

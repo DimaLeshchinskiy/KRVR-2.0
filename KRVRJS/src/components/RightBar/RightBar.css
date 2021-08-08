@@ -1,0 +1,11 @@
+.rightBar {
+  width: 84px;
+  height: 100%;
+  position: fixed;
+  right: 0px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffffeb;
+  border-left: solid 1px #cecece;
+  transition: width 0.1s;
+}

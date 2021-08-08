@@ -1,0 +1,16 @@
+.leftBar {
+  width: 60px;
+  height: 100%;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #ffffffeb;
+  border-right: solid 1px #cecece;
+}
+
+.group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}

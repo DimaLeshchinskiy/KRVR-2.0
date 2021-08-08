@@ -1,0 +1,14 @@
+{
+    "exclude": ["node_modules", "build", "public"],
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "paths": {
+            "@components": ["components"],
+            "@config": ["config"],
+            "@managers": ["managers"],
+            "@modals": ["modals"],
+            "@models": ["models"],
+            "@data": ["data"]
+        }
+      }
+}

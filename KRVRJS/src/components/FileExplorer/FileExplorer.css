@@ -1,0 +1,9 @@
+.tab.emptyExplorer {
+  min-height: 150px;
+  display: flex;
+}
+
+.tab.emptyExplorer > * {
+  text-align: center;
+  margin: auto;
+}

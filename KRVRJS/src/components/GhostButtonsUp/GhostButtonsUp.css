@@ -1,0 +1,9 @@
+.ghostButtonsUp {
+  position: absolute;
+  top: 3px;
+  left: 65px;
+}
+
+.ghostButtonsUp .btn-group {
+  margin-right: 3px;
+}
