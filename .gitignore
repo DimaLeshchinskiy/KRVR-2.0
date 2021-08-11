@@ -1,5 +1,5 @@
 /install/**.exe
 /install/**.rar
 __pycache__
-*.pyc
-*.pyo
+**.pyc
+**.pyo
