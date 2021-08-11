@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="jsdai">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/src/ext/jsdai_runtime.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
