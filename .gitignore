@@ -1,2 +1,3 @@
 /install/**.exe
 /install/**.rar
+__pycache__/
