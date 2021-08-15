@@ -88,6 +88,7 @@ async function renderRasterImages(files) {
     mesh.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
     mesh.userData = {
       id: val.file.id,
+      filePosition: val.file.position,
       type: "img",
     };
 
@@ -180,6 +181,7 @@ async function renderVectorImages(files) {
     mesh.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
     mesh.userData = {
       id: val.file.id,
+      filePosition: val.file.position,
       type: "img",
     };
 
@@ -226,6 +228,7 @@ async function renderThreeDObjects(files) {
 
     mesh.userData = {
       id: file.id,
+      filePosition: file.position,
       type: "obj",
     };
     meshes.push(mesh);
@@ -262,6 +265,7 @@ async function renderStepObjects(files) {
     mesh.geometry.center();
     mesh.userData = {
       id: val.file.id,
+      filePosition: val.file.position,
       type: "obj",
     };
 

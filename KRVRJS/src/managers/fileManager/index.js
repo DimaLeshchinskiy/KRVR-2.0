@@ -122,6 +122,8 @@ class FileManager {
       max: box.max,
     };
 
+    fileJsonRepre.objectOptions["position"] = file.position;
+
     return fileJsonRepre;
   }
 }

@@ -9,6 +9,7 @@ import { TransformControls } from "three/examples/jsm/controls/TransformControls
 import { FileContext } from "../../context/file";
 
 import RenderManager from "@managers/renderManager";
+import { Vector3 } from "three";
 
 class ThreeRender extends Component {
   static contextType = FileContext;
@@ -66,7 +67,18 @@ class ThreeRender extends Component {
     this.control.addEventListener(
       "change",
       function (e) {
-        console.log(e);
+        this.renderThree();
+      }.bind(this)
+    );
+
+    this.control.addEventListener(
+      "objectChange",
+      function (e) {
+        const { selectedFile } = this.context;
+        const mesh = e.target.object;
+        const box = mesh.geometry.boundingBox;
+        let { x, y, z } = mesh.position;
+        selectedFile.position = { x: x, y: y + box.min.y, z: z };
         this.renderThree();
       }.bind(this)
     );
@@ -257,6 +269,10 @@ class ThreeRender extends Component {
         })
         .forEach((mesh) => {
           this.scene.add(mesh);
+
+          //apply file postion to mesh
+          let { x, y, z } = mesh.userData.filePosition;
+          mesh.applyMatrix(new THREE.Matrix4().makeTranslation(x, y, z));
         });
 
       if (selectedFile && selectedFile.id) {
