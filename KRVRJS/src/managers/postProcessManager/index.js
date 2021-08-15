@@ -1,7 +1,10 @@
 import FileManager from "@managers/fileManager";
 import api from "@config/api.js";
 
-var _options = {};
+var _options = {
+  feedRate: 100,
+  power: 255,
+};
 
 export async function postProcess(files, options = {}) {
   Object.assign(_options, options);
