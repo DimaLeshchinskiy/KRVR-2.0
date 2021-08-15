@@ -6,6 +6,12 @@ class Tool:
         self.typeId = None
         self.title = None
         self.fields = []
+
+    def getFieldValue(self, fieldName):
+        for field in self.fields:
+            if field["inputName"] == fieldName:
+                return field["value"]
+        return None
     
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
