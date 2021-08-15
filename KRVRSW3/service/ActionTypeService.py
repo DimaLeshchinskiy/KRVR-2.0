@@ -27,6 +27,14 @@ class ActionTypeService(metaclass=SingletonMeta):
                 actionTypes.append(actionType)
         return actionTypes
 
+    def findById(self, id):
+        actionTypes = self.findAll()
+
+        for actionType in actionTypes:
+            if actionType.id == id:
+                return actionType
+        return None
+
     def create(self, json):
         actionType = ActionType()
 
