@@ -4,18 +4,18 @@
         "typeId":"1",
         "title":"Square End Mills 1mm lof 2mm",
         "fields":[
-        {
-            "label":"Field Label",
-            "inputType":"number",
-            "inputName":"inputName",
-            "value":52
-        },
-        {
-            "label":"Field Label 2",
-            "inputType":"number",
-            "inputName":"inputName2",
-            "value":10
-        }
+            {
+                "label":"Length",
+                "inputType":"number",
+                "inputName":"length",
+                "value":10
+            },
+            {
+                "label":"Width",
+                "inputType":"number",
+                "inputName":"width",
+                "value":2
+            }
         ]
     },
     {
@@ -23,18 +23,18 @@
         "typeId":"1",
         "title":"Square End Mills 2mm lof 4mm",
         "fields":[
-        {
-            "label":"Field Label",
-            "inputType":"number",
-            "inputName":"inputName",
-            "value":52
-        },
-        {
-            "label":"Field Label 2",
-            "inputType":"number",
-            "inputName":"inputName2",
-            "value":10
-        }
+            {
+                "label":"Length",
+                "inputType":"number",
+                "inputName":"length",
+                "value":20
+            },
+            {
+                "label":"Width",
+                "inputType":"number",
+                "inputName":"width",
+                "value":2
+            }
         ]
     }
 ]

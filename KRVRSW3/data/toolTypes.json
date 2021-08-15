@@ -5,14 +5,14 @@
         "type":"square_end_mills",
         "fields":[
         {
-            "label":"Field Label",
+            "label":"Length",
             "inputType":"number",
-            "inputName":"inputName"
+            "inputName":"length"
         },
         {
-            "label":"Field Label 2",
+            "label":"Width",
             "inputType":"number",
-            "inputName":"inputName2"
+            "inputName":"width"
         }
         ]
     }
