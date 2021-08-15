@@ -1,3 +1,4 @@
 /install/**.exe
 /install/**.rar
 __pycache__/
+/KRVRSW3/public/**
