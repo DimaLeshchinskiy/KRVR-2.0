@@ -2,7 +2,11 @@ from flask import Flask, send_from_directory, request
 import json
 
 from model import ToolEncoder, ToolTypeEncoder, ActionEncoder, ActionTypeEncoder
-from service import ToolService, ToolTypeService, ActionService, ActionTypeService, ConvertService
+from service import ToolService, ToolTypeService, ActionService, ActionTypeService, ConvertService, PostProcessService
+from core import GrblGcodeBuilder, SerialCommunication
+
+serialCommunication = SerialCommunication()
+
 
 app = Flask(__name__, static_url_path='', static_folder='public')
 
@@ -67,8 +71,18 @@ def convertSTEP():
 @app.route('/postProcess', methods=['POST'])
 def postProcess():
     json = request.get_json()
-    print(json)
-    return "ok"
+    # builder1 = GrblGcodeBuilder(f=100, s=255)
+    # builder1.g0(x=10, z=10).g0(x=10, z=20).g1(y=10, z=20, s=100)
+    # builder2 = GrblGcodeBuilder()
+    # builder2.g1(x=10, z=10).g1(x=10, z=20).g0(y=10, z=20, s=100)
+
+    # builder1.appendBuilder(builder2, "comment1").g0(x=0, y=0, z=0)
+    # builder1.appendBuilder(builder2, "comment2").g0(x=0, y=0, z=0)
+
+    # return builder1.make()
+    service = PostProcessService()
+    gcode = service.process(json)
+    return gcode
 
 
 if __name__ == '__main__':
