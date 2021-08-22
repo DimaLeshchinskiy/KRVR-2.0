@@ -9,6 +9,10 @@ class PocketActionProcess:
         self.toolLength = 0
         self.wallOffset = 0
 
+        self.objectX = 0
+        self.objectY = 0
+        self.objectZ = 0
+
     def getHeightOfFace(self, face):
         positionPoints = face["position"]["array"]
         return positionPoints[1]
@@ -111,7 +115,7 @@ class PocketActionProcess:
 
         for line in lines:
             startPoint = line[0]
-            mainGcodeBuilder.g0(x=startPoint[0], y=oneLayerUpY, z=startPoint[1]).g1(y=y)
+            mainGcodeBuilder.g0(x=startPoint[0] + self.objectX, y=oneLayerUpY, z=startPoint[1] + self.objectZ).g1(y=y)
 
             for pointer in range(0, len(line)):
                 if pointer + 1 == len(line):
@@ -121,9 +125,9 @@ class PocketActionProcess:
                 pointB = line[pointer + 1]
 
                 if pointer % 2 == 0:
-                    mainGcodeBuilder.g0(x=pointB[0], y=oneLayerUpY, z=pointB[1]).g1(y=y)
+                    mainGcodeBuilder.g0(x=pointB[0] + self.objectX, y=oneLayerUpY, z=pointB[1] + self.objectZ).g1(y=y)
                 else:
-                    mainGcodeBuilder.g1(x=pointB[0], y=y, z=pointB[1]).g0(y=oneLayerUpY)
+                    mainGcodeBuilder.g1(x=pointB[0] + self.objectX, y=y, z=pointB[1] + self.objectZ).g0(y=oneLayerUpY)
 
         return mainGcodeBuilder
 
@@ -133,6 +137,10 @@ class PocketActionProcess:
         self.toolWidth = tool.getFieldValue("width")
         self.toolLength = tool.getFieldValue("length")
         self.wallOffset = action.getFieldValue("offset")
+
+        self.objectX = objectOptions["position"]["x"]
+        self.objectY = objectOptions["position"]["y"]
+        self.objectZ = objectOptions["position"]["z"]
 
         face = action.getSelectedFace()
         minLayerY = self.getHeightOfFace(face)
