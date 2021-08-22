@@ -11,14 +11,19 @@
     "type":"2d_pocket",
     "fields":[
       {
-        "label":"Field Label",
+        "label":"Offset",
         "inputType":"number",
-        "inputName":"inputName"
+        "inputName":"offset"
+      },
+      {
+        "label":"Hight from",
+        "inputType":"number",
+        "inputName":"heightFrom"
       },
       {
         "label":"Face",
         "inputType":"face",
-        "inputName":"inputName2"
+        "inputName":"pocket_face"
       }
     ]
   }

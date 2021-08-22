@@ -18,7 +18,7 @@ var actionTypes = [
       {
         label: "Face",
         inputType: "face",
-        inputName: "inputName2",
+        inputName: "pocket_face",
       },
     ],
   },
