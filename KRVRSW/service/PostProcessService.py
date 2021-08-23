@@ -31,10 +31,13 @@ class PostProcessService(metaclass=SingletonMeta):
         toolService = ToolService()
         materialService = MaterialService()
 
+        toolModelLastUsed = None
+
         options = json["options"]
 
         #set feedRate and power
         mainGcodeBuilder.setFeedRate(options["feedRate"]).setPower(options["power"])
+        mainGcodeBuilder.g28()
 
         #files process
         for file in json["files"]:
@@ -58,6 +61,9 @@ class PostProcessService(metaclass=SingletonMeta):
                 actionModel = actionService.create(action)
                 toolModel = toolService.findById(action["toolId"])
 
+                if toolModelLastUsed and toolModel.id != toolModelLastUsed.id:
+                    mainGcodeBuilder.changeTool()
+
                 gcodeBuilder = actionStrategy.makeGcode(
                     action=actionModel, 
                     tool=toolModel, 
@@ -66,5 +72,6 @@ class PostProcessService(metaclass=SingletonMeta):
                 )
                 mainGcodeBuilder.appendBuilder(gcodeBuilder, comment="Process action " + str(action["title"]))
 
+        mainGcodeBuilder.g28()
         return mainGcodeBuilder.make()
         
