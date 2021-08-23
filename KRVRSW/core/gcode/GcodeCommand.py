@@ -1,13 +1,21 @@
 class GcodeCommand:
-    def __init__(self, command=None, comment=None):
+    def __init__(self, command=None, comment=None, globalParameters=None):
         self.command = command
         self.parametrs = {}
         self.comment = comment
+
+        self.globalParameters = globalParameters
+        if self.globalParameters == None:
+            self.globalParameters = ["S", "F"]
+            
     
     def addParametr(self, key, value):
         self.parametrs[str(key)] = str(value)
     
     def tryChangeGlobalParametr(self, key, value):
+        if str(key) not in self.globalParameters:
+            return
+            
         if str(key) not in self.parametrs:
             self.parametrs[str(key)] = str(value)
         
