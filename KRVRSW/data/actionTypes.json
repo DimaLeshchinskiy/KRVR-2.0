@@ -53,5 +53,32 @@
         "inputName":"pocket_face"
       }
     ]
+  },
+  {
+    "id":"4",
+    "title":"Interior Perimeter",
+    "type":"int_perimeter",
+    "fields":[
+      {
+        "label":"Offset",
+        "inputType":"number",
+        "inputName":"offset"
+      },
+      {
+        "label":"Min Y",
+        "inputType":"number",
+        "inputName":"minY"
+      },
+      {
+        "label":"Max Y",
+        "inputType":"number",
+        "inputName":"maxY"
+      },
+      {
+        "label":"Face",
+        "inputType":"face",
+        "inputName":"pocket_face"
+      }
+    ]
   }
 ]
