@@ -3,7 +3,7 @@ import sys
 sys.path.append("..")
 
 from service import ActionTypeService, ToolService, ActionService, MaterialService
-from core import FaceActionProcess, PocketActionProcess, GrblGcodeBuilder
+from core import FaceActionProcess, PocketActionProcess, ExtPerimeterActionProcess, IntPerimeterActionProcess, GrblGcodeBuilder
 
 
 class SingletonMeta(type):
@@ -48,6 +48,10 @@ class PostProcessService(metaclass=SingletonMeta):
                     actionStrategy = FaceActionProcess()
                 elif actionType.type == "2d_pocket":
                     actionStrategy = PocketActionProcess()
+                elif actionType.type == "ext_perimeter":
+                    actionStrategy = ExtPerimeterActionProcess()
+                elif actionType.type == "int_perimeter":
+                    actionStrategy = IntPerimeterActionProcess()
                 else:
                     continue
                 
