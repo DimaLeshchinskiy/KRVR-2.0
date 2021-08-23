@@ -26,5 +26,32 @@
         "inputName":"pocket_face"
       }
     ]
+  },
+  {
+    "id":"3",
+    "title":"Exterior Perimeter",
+    "type":"ext_perimeter",
+    "fields":[
+      {
+        "label":"Offset",
+        "inputType":"number",
+        "inputName":"offset"
+      },
+      {
+        "label":"Min Y",
+        "inputType":"number",
+        "inputName":"minY"
+      },
+      {
+        "label":"Max Y",
+        "inputType":"number",
+        "inputName":"maxY"
+      },
+      {
+        "label":"Face",
+        "inputType":"face",
+        "inputName":"pocket_face"
+      }
+    ]
   }
 ]
