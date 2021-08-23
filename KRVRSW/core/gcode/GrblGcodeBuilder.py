@@ -58,6 +58,16 @@ class GrblGcodeBuilder:
         command = GcodeCommand(comment=str(comment))
         self.append(command)
         return self
+    
+    def changeTool(self, plateY=1):
+        
+        self.m5().g0(y=-1).g0(x=0, z=0).m0() # go up and pause
+        self.g0(y=plateY + 5).g91().g38_2(z=-5, f=1).g10_l20(y=plateY, p=1) # probe and set new coordinate system
+        self.g90().g0(y=-1).m0() # go up and wait for cleanup by user
+        self.m3() # go on
+
+        return self
+
 
     def g0(self, x=None, y=None, z=None, f=None, s=None):
         command = GcodeCommand(command="G0")
@@ -134,19 +144,74 @@ class GrblGcodeBuilder:
 
         self.append(command)
         return self
+    
+    def g10_l20(self, x=None, y=None, z=None, p=None):
+        command = GcodeCommand(command="G10 L20", comment="Set coordinate system", globalParameters=[])
+
+        if x or x == 0:
+            command.addParametr("X", str(x))
+        if z or z == 0:
+            command.addParametr("Y", str(z))
+        if y or y == 0:
+            command.addParametr("Z", str(y))
+        if p or p == 0:
+            command.addParametr("P", str(p))
+
+        self.append(command)
+        return self
 
     def g20(self):
-        command = GcodeCommand(command="G20", comment="Set units to Inches")
+        command = GcodeCommand(command="G20", comment="Set units to Inches", globalParameters=[])
         self.append(command)
         return self
 
     def g21(self):
-        command = GcodeCommand(command="G21", comment="Set units to Millimeters")
+        command = GcodeCommand(command="G21", comment="Set units to Millimeters", globalParameters=[])
         self.append(command)
         return self
 
     def g28(self):
-        command = GcodeCommand(command="G28", comment="Home")
+        command = GcodeCommand(command="G28", comment="Home", globalParameters=[])
+        self.append(command)
+        return self
+    
+    def g38_2(self, z=None, f=None):
+        command = GcodeCommand(command="G38.2", comment="Probe down", globalParameters=["F"])
+
+        if z or z == 0:
+            command.addParametr("Y", str(z))
+        if f or f == 0:
+            command.addParametr("F", str(f))
+
+        self.append(command)
+        return self
+
+    def g90(self):
+        command = GcodeCommand(command="G90", comment="Absolute mode enable", globalParameters=[])
+        self.append(command)
+        return self
+
+    def g91(self):
+        command = GcodeCommand(command="G91", comment="Incremental mode enable", globalParameters=[])
+        self.append(command)
+        return self
+
+    def m0(self):
+        command = GcodeCommand(command="M0", comment="Pause", globalParameters=[])
+        self.append(command)
+        return self
+    
+    def m3(self, s=None):
+        command = GcodeCommand(command="M3", comment="Start spindle", globalParameters=["S"])
+
+        if s or s == 0:
+            command.addParametr("S", str(s))
+
+        self.append(command)
+        return self
+    
+    def m5(self):
+        command = GcodeCommand(command="M5", comment="Stop spindle", globalParameters=[])
         self.append(command)
         return self
     
