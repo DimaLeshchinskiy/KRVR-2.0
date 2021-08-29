@@ -8,6 +8,7 @@ const aliasMap = {
   "@modals": "src/modals",
   "@models": "src/models",
   "@data": "src/data",
+  "@util": "src/util",
 };
 
 module.exports = alias(aliasMap);
