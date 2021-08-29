@@ -1,7 +1,6 @@
 from core import GrblGcodeBuilder
+from util import ShapelyUtil
 from shapely.geometry import Polygon, LineString, MultiLineString
-from shapely.ops import unary_union
-import matplotlib.pyplot as plt
 
 class ExtPerimeterActionProcess:
     def __init__(self):
@@ -12,32 +11,6 @@ class ExtPerimeterActionProcess:
         self.objectX = 0
         self.objectY = 0
         self.objectZ = 0
-
-    def getHeightOfFace(self, face):
-        positionPoints = face["position"]["array"]
-        return positionPoints[1]
-
-    def getUnionPolygon(self, face):
-        positionPoints = face["position"]["array"]
-        polygons = []
-        points = []
-
-        for pointer in range(0, len(positionPoints), 3):
-            x = positionPoints[pointer + 0]
-            y = positionPoints[pointer + 1] # y is same in each pocket; unused
-            z = positionPoints[pointer + 2]
-            points.append((x, z))
-        
-        for pointer in range(0, len(points), 3):
-            a = points[pointer + 0]
-            b = points[pointer + 1]
-            c = points[pointer + 2]
-            polygons.append(Polygon([a, b, c]))
-            
-        return self.mergePolygons(polygons)
-
-    def mergePolygons(self, polygons):
-        return unary_union(polygons)
 
     def getLines(self, polygon):
         lines = []
@@ -74,19 +47,19 @@ class ExtPerimeterActionProcess:
 
         self.toolWidth = tool.getFieldValue("width")
         self.toolLength = tool.getFieldValue("length")
-        self.wallOffset = 5
+        self.wallOffset = int(action.getFieldValue("offset"))
 
         self.objectX = objectOptions["position"]["x"]
         self.objectY = objectOptions["position"]["y"]
         self.objectZ = objectOptions["position"]["z"]
 
-        face = action.getSelectedFace()
-        minY = action.getFieldValue("minY")
+        face = action.getSelectedFace("pocket_face")
+        minY = int(action.getFieldValue("minY"))
 
-        polygon = self.getUnionPolygon(face)
+        polygon = ShapelyUtil.getUnionPolygon(face)
         lines = self.getLines(polygon)
 
-        currentHeight = action.getFieldValue("maxY")
+        currentHeight = int(action.getFieldValue("maxY"))
         while currentHeight > minY:
             currentHeight -= self.toolLength
             if currentHeight > minY:

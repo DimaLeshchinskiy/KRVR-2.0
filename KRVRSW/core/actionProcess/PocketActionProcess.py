@@ -1,7 +1,6 @@
 from core import GrblGcodeBuilder
-from shapely.geometry import Polygon, LineString, MultiLineString
-from shapely.ops import unary_union
-import matplotlib.pyplot as plt
+from util import ShapelyUtil
+from shapely.geometry import Polygon, LineString, MultiLineString, MultiPolygon
 
 class PocketActionProcess:
     def __init__(self):
@@ -12,29 +11,6 @@ class PocketActionProcess:
         self.objectX = 0
         self.objectY = 0
         self.objectZ = 0
-
-    def getHeightOfFace(self, face):
-        positionPoints = face["position"]["array"]
-        return positionPoints[1]
-
-    def getUnionPolygon(self, face):
-        positionPoints = face["position"]["array"]
-        polygons = []
-        points = []
-
-        for pointer in range(0, len(positionPoints), 3):
-            x = positionPoints[pointer + 0]
-            y = positionPoints[pointer + 1] # y is same in each pocket; unused
-            z = positionPoints[pointer + 2]
-            points.append((x, z))
-        
-        for pointer in range(0, len(points), 3):
-            a = points[pointer + 0]
-            b = points[pointer + 1]
-            c = points[pointer + 2]
-            polygons.append(Polygon([a, b, c]))
-            
-        return self.mergePolygons(polygons)
 
     def applyOffset(self, polygon):
         exterior = polygon.exterior
@@ -49,30 +25,7 @@ class PocketActionProcess:
                 interiorPolygon = Polygon(interiorsOffset.coords)
                 newPolygon = newPolygon.difference(interiorPolygon)
 
-        return self.mergePolygons(newPolygon)
-
-    def mergePolygons(self, polygons):
-        return unary_union(polygons)
-
-    # def view(self, polygon, multipolygon):
-    #     x, y = polygon.exterior.xy
-    #     plt.plot(x, y, c="red")
-    #     interiors = polygon.interiors
-
-    #     for interior in interiors:
-    #         x, y = interior.xy
-    #         plt.plot(x, y, c="red")
-
-    #     for polygonOffset in multipolygon:
-    #         x, y = polygonOffset.exterior.xy
-    #         plt.plot(x, y, c="green")
-    #         interiors = polygonOffset.interiors
-
-    #         for interior in interiors:
-    #             x, y = interior.xy
-    #             plt.plot(x, y, c="green")
-
-    #     plt.show()
+        return ShapelyUtil.mergePolygons(newPolygon)
 
     def sortPointsByZ(self, points):
         sortFunc = lambda el: el[1] 
@@ -134,24 +87,26 @@ class PocketActionProcess:
     def makeGcode(self, action=None, tool=None, material=None, objectOptions=None) -> GrblGcodeBuilder:
         mainGcodeBuilder = GrblGcodeBuilder()
 
-        self.toolWidth = tool.getFieldValue("width")
-        self.toolLength = tool.getFieldValue("length")
-        self.wallOffset = action.getFieldValue("offset")
+        self.toolWidth = int(tool.getFieldValue("width"))
+        self.toolLength = int(tool.getFieldValue("length"))
+        self.wallOffset = int(action.getFieldValue("offset"))
 
         self.objectX = objectOptions["position"]["x"]
         self.objectY = objectOptions["position"]["y"]
         self.objectZ = objectOptions["position"]["z"]
 
-        face = action.getSelectedFace()
-        minLayerY = self.getHeightOfFace(face)
-        polygon = self.getUnionPolygon(face)
+        faces = action.getSelectedFace("pocket_face")
+        minLayerY = ShapelyUtil.getHeightOfFace(faces)
+        polygon = ShapelyUtil.getUnionPolygon(faces)
 
         multiPolygon = self.applyOffset(polygon)
-        # self.view(polygon, multiPolygon)
+        if type(multiPolygon) == Polygon:
+            multiPolygon = MultiPolygon([multiPolygon])
+        # ShapelyUtil.view(polygon, multiPolygon)
 
         lines = self.getLines(multiPolygon)
 
-        currentHeight = action.getFieldValue("heightFrom")
+        currentHeight = int(action.getFieldValue("heightFrom"))
         while currentHeight > minLayerY:
             currentHeight -= self.toolLength
             if currentHeight > minLayerY:
