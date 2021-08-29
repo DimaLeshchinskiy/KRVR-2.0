@@ -40,6 +40,7 @@ export default function FileSettings(props) {
               <button
                 class={clases.join(" ")}
                 key={index}
+                title={el.title}
                 data-bs-toggle="pill"
                 data-bs-target="#v-pills-home"
                 type="button"

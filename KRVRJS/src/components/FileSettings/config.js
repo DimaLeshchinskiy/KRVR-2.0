@@ -4,7 +4,7 @@ import FileMaterial from "@components/FileMaterial/FileMaterial";
 
 export default [
   {
-    title: "",
+    title: "Actions",
     id: "millingActions",
     svg: (
       <svg
@@ -28,7 +28,7 @@ export default [
     content: FileMillingActions,
   },
   {
-    title: "",
+    title: "Material",
     id: "material",
     svg: (
       <svg
@@ -45,7 +45,7 @@ export default [
     content: FileMaterial,
   },
   {
-    title: "",
+    title: "Information",
     id: "info",
     svg: (
       <svg
