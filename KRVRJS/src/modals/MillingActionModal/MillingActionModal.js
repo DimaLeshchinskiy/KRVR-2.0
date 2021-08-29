@@ -44,10 +44,9 @@ function MillingActionModal({ action, file, onSaveAction }) {
     }
   };
 
-  const onPick = function (faces, propertyName) {
-    console.log("onPick", faces, propertyName);
+  const onPick = function (surfaces, propertyName) {
     let field = action.fields.find((field) => field.inputName === propertyName);
-    field.value = faces;
+    field.value = surfaces;
     setPickPropertyName("");
     pickModeEnable(false);
   };
@@ -93,7 +92,7 @@ function MillingActionModal({ action, file, onSaveAction }) {
                 isPickModeEnable={isPickModeEnable}
                 pickPropertyName={pickPropertyName}
                 onPick={onPick}
-                faceInputFields={getFieldsByInputType("facePicker")}
+                faceInputFields={getFieldsByInputType("face")}
               />
             </div>
 
