@@ -2,7 +2,7 @@ var tools = [
   {
     id: "1",
     typeId: "1",
-    title: "Square End Mills 1mm lof 2mm",
+    title: "Flat End Mills 1mm lof 2mm",
     fields: [
       {
         label: "Field Label",
@@ -21,7 +21,7 @@ var tools = [
   {
     id: "2",
     typeId: "1",
-    title: "Square End Mills 2mm lof 4mm",
+    title: "Flat End Mills 2mm lof 4mm",
     fields: [
       {
         label: "Field Label",

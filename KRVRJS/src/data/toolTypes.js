@@ -1,8 +1,8 @@
 var toolTypes = [
   {
     id: "1",
-    title: "Square end mills",
-    type: "square_end_mills",
+    title: "Flat end mills",
+    type: "flat_end_mills",
     fields: [
       {
         label: "Field Label",
