@@ -6,10 +6,10 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 
-import { FileContext } from "../../context/file";
+import { FileContext } from "@context/file";
 
 import RenderManager from "@managers/renderManager";
-import { Vector3 } from "three";
+import { disposeObject3D } from "@util/ThreeJS";
 
 class ThreeRender extends Component {
   static contextType = FileContext;
@@ -22,6 +22,7 @@ class ThreeRender extends Component {
     this.cameraPersp = null;
     this.currentCamera = null;
     this.scene = null;
+    this.light = null;
     this.renderer = null;
     this.control = null;
     this.orbit = null;
@@ -42,14 +43,18 @@ class ThreeRender extends Component {
     this.cameraPersp = new THREE.PerspectiveCamera(50, aspect, 0.01, 30000);
     this.currentCamera = this.cameraPersp;
 
-    this.currentCamera.position.set(1000, 500, 1000);
+    this.currentCamera.position.set(500, 250, 500);
     this.currentCamera.lookAt(0, 200, 0);
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffffff);
-    const gridHelper = new THREE.GridHelper(10000, 100, 0x888888, 0x444444);
+    const gridHelper = new THREE.GridHelper(10000, 1000, 0x888888, 0x444444);
     gridHelper.userData.className = "GridHelper";
     this.scene.add(gridHelper);
+
+    this.light = new THREE.HemisphereLight(0xffffff, 0x080820, 1);
+    this.light.userData.className = "HemisphereLight";
+    this.scene.add(this.light);
 
     this.orbit = new OrbitControls(
       this.currentCamera,
@@ -76,7 +81,7 @@ class ThreeRender extends Component {
       function (e) {
         const { selectedFile } = this.context;
         const mesh = e.target.object;
-        const box = mesh.geometry.boundingBox;
+        const box = mesh.userData.box;
         let { x, y, z } = mesh.position;
         selectedFile.position = { x: x, y: y + box.min.y, z: z };
         this.renderThree();
@@ -108,14 +113,22 @@ class ThreeRender extends Component {
         objects
           .filter((object) => {
             let className = object.userData.className;
-            if (className === "GridHelper" || className === "TransformControls")
+            if (
+              className === "GridHelper" ||
+              className === "TransformControls" ||
+              className === "HemisphereLight"
+            )
               return false;
             return true;
           })
           .some((object) => {
             const intersects = this.raycaster.intersectObject(object, true);
             if (intersects.length > 0) {
-              const selectedObject = intersects[0].object;
+              let selectedObject = intersects[0].object;
+              if (selectedObject.type == "LineSegments")
+                selectedObject = selectedObject.parent.parent;
+              else if (selectedObject.type == "Mesh")
+                selectedObject = selectedObject.parent;
               if (
                 this.control.object === undefined ||
                 this.control.object !== selectedObject
@@ -150,7 +163,7 @@ class ThreeRender extends Component {
             break;
 
           case 16: // Shift
-            this.control.setTranslationSnap(100);
+            this.control.setTranslationSnap(10);
             this.control.setRotationSnap(THREE.MathUtils.degToRad(15));
             this.control.setScaleSnap(0.25);
             break;
@@ -214,11 +227,7 @@ class ThreeRender extends Component {
   componentWillUnmount() {
     console.log("unmount Main view");
     //free RAM memory
-    this.scene.children.forEach((object) => {
-      console.log(object);
-      object.geometry.dispose();
-      object.material.dispose();
-    });
+    this.scene.children.forEach((object) => disposeObject3D);
     this.renderer.dispose();
   }
 
@@ -246,7 +255,11 @@ class ThreeRender extends Component {
 
     this.scene.children.forEach((object) => {
       let className = object.userData.className;
-      if (className === "GridHelper" || className === "TransformControls")
+      if (
+        className === "GridHelper" ||
+        className === "TransformControls" ||
+        className === "HemisphereLight"
+      )
         return;
       if (
         !files.some((file) => {
@@ -254,8 +267,7 @@ class ThreeRender extends Component {
         })
       ) {
         if (this.control.object == object) this.control.detach();
-        object.geometry.dispose();
-        object.material.dispose();
+        disposeObject3D(object);
         this.scene.remove(object);
       }
     });
@@ -272,7 +284,11 @@ class ThreeRender extends Component {
 
           //apply file postion to mesh
           let { x, y, z } = mesh.userData.filePosition;
-          mesh.applyMatrix(new THREE.Matrix4().makeTranslation(x, y, z));
+          let box = mesh.userData.box;
+          console.log({ x, y, z });
+          mesh.applyMatrix(
+            new THREE.Matrix4().makeTranslation(x, y - box.min.y, z)
+          );
         });
 
       if (selectedFile && selectedFile.id) {

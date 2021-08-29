@@ -1,4 +1,6 @@
-import FileManager from "../fileManager";
+import FileManager from "@managers/fileManager";
+import SurfaceSplitterManager from "@managers/surfaceSplitterManager";
+import { getBoudingOfObject3D } from "@util/ThreeJS";
 import * as THREE from "three";
 
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
@@ -219,16 +221,27 @@ async function renderThreeDObjects(files) {
       mesh = new THREE.Mesh(object3D, material);
     }
 
-    mesh.geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-    mesh.geometry.center();
-    mesh.geometry.computeBoundingBox();
-    let box = mesh.geometry.boundingBox;
+    const surfaces = SurfaceSplitterManager.splitMeshToSurfaces(mesh);
+    mesh = SurfaceSplitterManager.makeMeshFromSurfaces(surfaces);
+    let box = getBoudingOfObject3D(mesh);
+
+    // mesh.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+    // mesh.geometry.center();
+    // mesh.geometry.computeBoundingBox();
+    // let box = mesh.geometry.boundingBox;
     //traslate to min origin
-    mesh.applyMatrix(new THREE.Matrix4().makeTranslation(0, -box.min.y, 0));
+
+    // mesh.geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+    // mesh.geometry.center();
+    // mesh.geometry.computeBoundingBox();
+    // let box = mesh.geometry.boundingBox;
+    // //traslate to min origin
+    // mesh.applyMatrix(new THREE.Matrix4().makeTranslation(0, -box.min.y, 0));
 
     mesh.userData = {
       id: file.id,
       filePosition: file.position,
+      box: box,
       type: "obj",
     };
     meshes.push(mesh);
@@ -261,11 +274,16 @@ async function renderStepObjects(files) {
       mesh = new THREE.Mesh(object3D, material);
     }
 
-    mesh.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-    mesh.geometry.center();
+    const surfaces = SurfaceSplitterManager.splitMeshToSurfaces(mesh);
+    mesh = SurfaceSplitterManager.makeMeshFromSurfaces(surfaces);
+    let box = getBoudingOfObject3D(mesh);
+
+    // mesh.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+    // mesh.geometry.center();
     mesh.userData = {
       id: val.file.id,
       filePosition: val.file.position,
+      box: box,
       type: "obj",
     };
 

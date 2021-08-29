@@ -5,7 +5,10 @@ import * as THREE from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import RenderManager from "../../../managers/renderManager";
+import RenderManager from "@managers/renderManager";
+import SurfaceSplitterManager from "@managers/surfaceSplitterManager";
+
+import { disposeObject3D, compareMeshes } from "@util/ThreeJS";
 
 const getDimension = (object, originFace) => {
   const screenWidth = window.innerWidth;
@@ -30,219 +33,6 @@ const getDimension = (object, originFace) => {
   };
 };
 
-function getFace(geometry, originFace) {
-  const face = { vertices: [], normal: null };
-
-  const vertices = geometry.getAttribute("position").array;
-  const { a, b, c, normal } = originFace;
-
-  face.vertices.push({
-    x: vertices[a * 3],
-    y: vertices[a * 3 + 1],
-    z: vertices[a * 3 + 2],
-  });
-
-  face.vertices.push({
-    x: vertices[b * 3],
-    y: vertices[b * 3 + 1],
-    z: vertices[b * 3 + 2],
-  });
-
-  face.vertices.push({
-    x: vertices[c * 3],
-    y: vertices[c * 3 + 1],
-    z: vertices[c * 3 + 2],
-  });
-
-  face.normal = normal;
-
-  return face;
-}
-
-function getAllFaces(geometry) {
-  const faces = [];
-
-  const vertices = geometry.getAttribute("position").array;
-  const normals = geometry.getAttribute("normal").array;
-
-  for (let i = 0; i < vertices.length; i += 9) {
-    const face = { vertices: [], normal: null };
-    for (let j = 0; j < 9; j += 3) {
-      face.vertices.push({
-        x: vertices[i + j],
-        y: vertices[i + j + 1],
-        z: vertices[i + j + 2],
-      });
-    }
-
-    face.normal = new THREE.Vector3(normals[i], normals[i + 1], normals[i + 2]);
-
-    faces.push(face);
-  }
-
-  return faces;
-}
-
-function compareFaces(f1, f2, minVerticesNeed = 3) {
-  let countOfEqualsVertex = 0;
-
-  for (let i = 0; i < f1.vertices.length; i++) {
-    for (let j = 0; j < f2.vertices.length; j++) {
-      if (
-        f1.vertices[i].x === f2.vertices[j].x &&
-        f1.vertices[i].y === f2.vertices[j].y &&
-        f1.vertices[i].z === f2.vertices[j].z
-      )
-        countOfEqualsVertex++;
-
-      if (countOfEqualsVertex === minVerticesNeed) return true;
-    }
-  }
-
-  return false;
-}
-
-function makePlane(face) {
-  const A = new THREE.Vector3(
-    face.vertices[0].x,
-    face.vertices[0].y,
-    face.vertices[0].z
-  );
-
-  const B = new THREE.Vector3(
-    face.vertices[1].x,
-    face.vertices[1].y,
-    face.vertices[1].z
-  );
-
-  const C = new THREE.Vector3(
-    face.vertices[2].x,
-    face.vertices[2].y,
-    face.vertices[2].z
-  );
-
-  return new THREE.Plane().setFromCoplanarPoints(A, B, C);
-}
-
-function removeOriginFace(faces, originFace) {
-  return faces.filter((face) => {
-    return !compareFaces(face, originFace);
-  });
-}
-
-function filterByNormal(faces, normal) {
-  return faces.filter((face) => {
-    // filter by normal, must have same normal vector
-    return face.normal.dot(normal) == 1;
-  });
-}
-
-function filterByPlane(faces, plane) {
-  return faces.filter((face) => {
-    // filter by plane, must be on the same plane
-    const point = new THREE.Vector3(
-      face.vertices[0].x,
-      face.vertices[0].y,
-      face.vertices[0].z
-    );
-    return plane.distanceToPoint(point) == 0;
-  });
-}
-
-function filterByNeighbor(faces, faceOrigin) {
-  let nieghborFaces = [faceOrigin];
-  let face = null;
-  let needToPush = [];
-  let notNeedToPush = [];
-
-  while (true) {
-    while ((face = faces.shift())) {
-      const isNeighbor = nieghborFaces.some((nieghborFace) => {
-        return compareFaces(nieghborFace, face, 2);
-      });
-
-      if (isNeighbor) needToPush.push(face);
-      else notNeedToPush.push(face);
-    }
-
-    if (needToPush.length === 0) return nieghborFaces;
-
-    nieghborFaces = nieghborFaces.concat(needToPush);
-    faces = notNeedToPush;
-    notNeedToPush = [];
-    needToPush = [];
-  }
-}
-
-function findNeighborFaces(object, originFace) {
-  const geometry = object.geometry.toNonIndexed();
-  const face = getFace(geometry, originFace);
-  let faces = getAllFaces(geometry);
-  // console.log("All", faces, face);
-  faces = removeOriginFace(faces, face);
-  // console.log("Remove origin", faces, faces.length);
-  faces = filterByNormal(faces, originFace.normal);
-  // console.log("Normal filter", faces, faces.length);
-  faces = filterByPlane(faces, makePlane(face));
-  // console.log("Plane filter", faces, faces.length);
-  faces = filterByNeighbor(faces, face);
-  // console.log("Result", faces, faces.length);
-  return faces;
-}
-
-function makeBufferGeometry(faces) {
-  const geometry = new THREE.BufferGeometry();
-  const vertices = new Float32Array(faces.length * 9);
-  const normals = new Float32Array(faces.length * 9);
-  const color = new Float32Array(faces.length * 9);
-
-  let index = 0;
-  faces.forEach((face) => {
-    face.vertices.forEach((vertex) => {
-      vertices[index++] = vertex.x;
-      vertices[index++] = vertex.y;
-      vertices[index++] = vertex.z;
-    });
-  });
-
-  index = 0;
-  faces.forEach((face) => {
-    for (let i = 0; i < 3; i++) {
-      normals[index++] = face.normal.x;
-      normals[index++] = face.normal.y;
-      normals[index++] = face.normal.z;
-    }
-  });
-
-  index = 0;
-  faces.forEach(() => {
-    for (let i = 0; i < 3; i++) {
-      color[index++] = 255;
-      color[index++] = 0;
-      color[index++] = 0;
-    }
-  });
-
-  geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-  geometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
-  geometry.setAttribute("color", new THREE.BufferAttribute(color, 3));
-  return geometry;
-}
-
-function makeMesh(geometry, property_name) {
-  const material = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    vertexColors: THREE.VertexColors,
-  });
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-  mesh.userData = {
-    type: "select",
-    property_name: property_name,
-  };
-  return mesh;
-}
-
 const renderer = new THREE.WebGLRenderer({
   powerPreference: "high-performance",
 });
@@ -250,14 +40,17 @@ const renderer = new THREE.WebGLRenderer({
 class ThreeRender extends Component {
   constructor(props) {
     super(props);
+    this.state = { renderedMesh: null };
+
     this.renderThree = this.renderThree.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
     this.getCanvasRelativePosition = this.getCanvasRelativePosition.bind(this);
-    this.addSelectedFace = this.addSelectedFace.bind(this);
+    this.getRenderedMesh = this.getRenderedMesh.bind(this);
+    this.showSelectedSurface = this.showSelectedSurface.bind(this);
 
     this.cameraPersp = null;
     this.scene = null;
-    // renderer = null;
+    this.light = null;
     this.orbit = null;
     this.raycaster = null;
     this.group = null;
@@ -267,10 +60,6 @@ class ThreeRender extends Component {
 
   componentDidMount() {
     const dimension = getDimension();
-
-    // renderer = new THREE.WebGLRenderer({
-    //   powerPreference: "high-performance",
-    // });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(dimension.width, dimension.height);
     this.viewRef.current.appendChild(renderer.domElement);
@@ -284,9 +73,13 @@ class ThreeRender extends Component {
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffffff);
-    const gridHelper = new THREE.GridHelper(10000, 100, 0x888888, 0x444444);
+    const gridHelper = new THREE.GridHelper(10000, 1000, 0x888888, 0x444444);
     gridHelper.userData.className = "GridHelper";
     this.scene.add(gridHelper);
+
+    this.light = new THREE.HemisphereLight(0xffffff, 0x080820, 1);
+    this.light.userData.className = "HemisphereLight";
+    this.scene.add(this.light);
 
     this.orbit = new OrbitControls(this.cameraPersp, renderer.domElement);
     this.orbit.update();
@@ -308,20 +101,23 @@ class ThreeRender extends Component {
           objects
             .filter((object) => {
               let className = object.userData.className;
-              let type = object.userData.type;
               if (className === "GridHelper") return false;
-              if (type === "select") return false;
               return true;
             })
             .some((object) => {
               const intersects = this.raycaster.intersectObject(object, true);
               if (intersects.length > 0) {
-                const selectedObject = intersects[0].object;
-                const selectedFace = intersects[0].face;
+                let selectedObject = intersects[0].object;
+                if (selectedObject.type == "LineSegments")
+                  selectedObject = selectedObject.parent;
+                let parentObject = selectedObject.parent;
 
-                const faces = findNeighborFaces(selectedObject, selectedFace);
-                const bufferGeometry = makeBufferGeometry(faces);
-                this.props.onPick(bufferGeometry, this.props.pickPropertyName);
+                const neighbours = SurfaceSplitterManager.getNeighbourSurfaces(
+                  parentObject.children,
+                  selectedObject
+                );
+
+                this.props.onPick(neighbours, this.props.pickPropertyName);
               }
             });
         }
@@ -332,9 +128,17 @@ class ThreeRender extends Component {
 
     const file = this.props.file;
     RenderManager.render([file]).then((meshes) => {
-      this.scene.add(meshes[0]);
+      const mesh = meshes[0];
 
-      this.addSelectedFace();
+      //apply file postion to mesh
+      let { x, y, z } = mesh.userData.filePosition;
+      let box = mesh.userData.box;
+      mesh.applyMatrix(
+        new THREE.Matrix4().makeTranslation(x, y - box.min.y, z)
+      );
+      this.scene.add(mesh);
+
+      this.showSelectedSurface();
       this.renderThree();
     });
   }
@@ -343,9 +147,7 @@ class ThreeRender extends Component {
     console.log("unmount");
     //free RAM memory
     this.scene.children.forEach((object) => {
-      console.log(object);
-      object.geometry.dispose();
-      object.material.dispose();
+      disposeObject3D(object);
     });
   }
 
@@ -378,28 +180,40 @@ class ThreeRender extends Component {
     renderer.render(this.scene, this.cameraPersp);
   }
 
-  addSelectedFace() {
-    [...this.scene.children].forEach((object) => {
-      let type = object.userData.type;
-      if (type === "select") {
-        object.geometry.dispose();
-        object.material.dispose();
-        this.scene.remove(object);
-      }
+  getRenderedMesh() {
+    return this.scene.children.find((object) => {
+      return object.userData.type === "obj";
+    });
+  }
+
+  showSelectedSurface() {
+    const renderedMesh = this.getRenderedMesh();
+    if (!renderedMesh) return;
+    const renderedSurfaceMeshes = renderedMesh.children;
+
+    renderedSurfaceMeshes.forEach((mesh) => {
+      mesh.material.color.setHex(0x0000ff);
+      mesh.material.needsUpdate = true;
     });
 
     this.props.faceInputFields.forEach((field) => {
-      if (field.value) {
-        const mesh = makeMesh(field.value, field.fieldName);
-        this.scene.add(mesh);
-        this.renderThree();
+      if (field.value && field.value.length) {
+        field.value.forEach((mesh) => {
+          const thisMesh = renderedSurfaceMeshes.find((m) => {
+            return compareMeshes(m, mesh);
+          });
+          if (thisMesh) {
+            thisMesh.material.color.setHex(0xffffff);
+            thisMesh.material.needsUpdate = true;
+          }
+        });
       }
     });
-    this.renderThree();
   }
 
   componentDidUpdate() {
-    this.addSelectedFace();
+    this.showSelectedSurface();
+    this.renderThree();
   }
 
   render() {
