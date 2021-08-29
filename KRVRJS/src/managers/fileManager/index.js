@@ -2,6 +2,7 @@ import File from "@models/File.js";
 import Material from "@models/Material.js";
 import { serializeAction } from "@managers/actionManager";
 import RenderManager from "@managers/renderManager";
+import { getBoudingOfObject3D } from "@util/ThreeJS";
 
 const Types = {
   TEXT: "text",
@@ -114,8 +115,7 @@ class FileManager {
     });
 
     let mesh = (await RenderManager.render([file]))[0];
-    mesh.geometry.computeBoundingBox();
-    let box = mesh.geometry.boundingBox;
+    let box = getBoudingOfObject3D(mesh);
 
     fileJsonRepre.objectOptions["size"] = {
       min: box.min,

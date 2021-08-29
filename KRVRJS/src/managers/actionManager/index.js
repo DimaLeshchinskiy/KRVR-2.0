@@ -81,5 +81,8 @@ const getNumberFieldValue = (field) => {
 };
 
 const getFaceFieldValue = (field) => {
-  return field.value.toJSON();
+  return field.value.map((mesh) => {
+    console.log(mesh);
+    return mesh.geometry.toJSON();
+  });
 };
