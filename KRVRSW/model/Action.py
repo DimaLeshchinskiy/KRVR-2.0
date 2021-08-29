@@ -15,11 +15,18 @@ class Action:
                 return field["value"]
         return None
     
-    def getSelectedFace(self):
-        fieldValue = self.getFieldValue("pocket_face")
-        if fieldValue:
-            return fieldValue["data"]["attributes"]
-        return None
+    def getSelectedFace(self, fieldName="pocket_face"):
+        fieldValue = self.getFieldValue(fieldName)
+        if not fieldName:
+            return None
+
+        if isinstance(fieldValue, list):
+            array = []
+            for value in fieldValue:
+               array.append(value["data"]["attributes"])
+            return array
+        else:
+            return [fieldValue["data"]["attributes"]]
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
