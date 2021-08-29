@@ -83,6 +83,7 @@ export default function FileMillingActions(props) {
       })}
       <button
         class="btn btn-outline-primary btn-sm"
+        title="Add new action"
         onClick={() => onAddClick()}
       >
         +
