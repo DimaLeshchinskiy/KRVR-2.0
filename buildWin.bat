@@ -1,0 +1,1 @@
+pyinstaller --windowed --add-data "./KRVRSW/data;data" --add-data "./KRVRSW/public;public" ./KRVRSW/main.py
