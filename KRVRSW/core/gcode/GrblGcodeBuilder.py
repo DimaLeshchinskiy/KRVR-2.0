@@ -214,4 +214,19 @@ class GrblGcodeBuilder:
         command = GcodeCommand(command="M5", comment="Stop spindle", globalParameters=[])
         self.append(command)
         return self
+
+    def jog(self, x=None, y=None, z=None, f=None):
+        command = GcodeCommand(command="$J=", globalParameters=["F"])
+
+        if x or x == 0:
+            command.addParametr("X", str(x))
+        if z or z == 0:
+            command.addParametr("Y", str(z))
+        if y or y == 0:
+            command.addParametr("Z", str(y))
+        if f or f == 0:
+            command.addParametr("F", str(f))
+
+        self.append(command)
+        return self
     
