@@ -2,13 +2,46 @@ import "./ConsoleModal.css";
 
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+
+import { SocketContext } from "@context/socket";
+import { PortContext } from "@context/port";
+
+import { sendCommand } from "@managers/consoleManager";
 
 function ConsoleModal() {
+  const { lines, setLines } = useContext(SocketContext);
+  const { isConnected } = useContext(PortContext);
+
+  const [cmd, setCmd] = useState("");
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const handleCmd = (e) => {
+    setCmd(e.target.value);
+  };
+
+  const handleSend = () => {
+    if (isConnected) sendCommand(cmd);
+  };
+
+  const handleClear = () => {
+    setLines([]);
+  };
+
+  const getLines = () => {
+    if (!isConnected)
+      return <li class="list-group-item">Serial port is not selected</li>;
+
+    if (lines.length === 0)
+      return <li class="list-group-item">Console is empty</li>;
+
+    return lines.map((line) => {
+      return <li class="list-group-item">{line}</li>;
+    });
+  };
 
   return (
     <>
@@ -32,22 +65,13 @@ function ConsoleModal() {
         centered
       >
         <Modal.Header>
-          <Modal.Title>Modal heading</Modal.Title>
+          <Modal.Title>Console</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <ul class="list-group">
-            <li class="list-group-item">An item</li>
-            <li class="list-group-item">A second item</li>
-            <li class="list-group-item">A third item</li>
-            <li class="list-group-item">A fourth item</li>
-            <li class="list-group-item">And a fifth one</li>
-          </ul>
+          <ul class="list-group consoleLines">{getLines()}</ul>
 
-          <div class="row g-3 justify-content-between">
-            <div class="col-9">
-              <label class="visually-hidden" for="inlineFormInputGroupUsername">
-                Command
-              </label>
+          <div class="row justify-content-between mt-1">
+            <div class="col-12 mt-2">
               <div class="input-group">
                 <div class="input-group-text">>_</div>
                 <input
@@ -55,23 +79,22 @@ function ConsoleModal() {
                   class="form-control"
                   id="inlineFormInputGroupUsername"
                   placeholder="Command"
+                  value={cmd}
+                  onChange={handleCmd}
                 />
+                <button type="btn" class="btn btn-primary" onClick={handleSend}>
+                  Send
+                </button>
+                <button type="btn" class="btn btn-danger" onClick={handleClear}>
+                  Clear
+                </button>
               </div>
-            </div>
-
-            <div class="col-3 d-grid">
-              <button type="btn" class="btn btn-primary">
-                Send
-              </button>
             </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
-          </Button>
-          <Button variant="primary" onClick={handleClose}>
-            Save Changes
           </Button>
         </Modal.Footer>
       </Modal>
