@@ -179,7 +179,9 @@ const SurfaceSplitterManager = {
     return parentObject3D;
   },
   splitMeshToSurfaces(mesh) {
-    const geometry = mesh.geometry.toNonIndexed();
+    const geometry = mesh.geometry.index
+      ? mesh.geometry.toNonIndexed()
+      : mesh.geometry;
     const faces = mapGeometryToFaces(geometry);
 
     const groupsOfFaces = groupFacesByNormalAndPlane(faces);
