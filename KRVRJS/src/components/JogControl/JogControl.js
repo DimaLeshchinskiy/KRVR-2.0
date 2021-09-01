@@ -1,8 +1,14 @@
 import "./JogControl.css";
+import api from "@config/api.js";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
+
+import { PortContext } from "@context/port";
+
+import { sendJogData } from "@managers/jogManager";
 
 export default function JogControl(props) {
+  const { isConnected } = useContext(PortContext);
   const [feed, setFeed] = useState(0);
   const [step, setStep] = useState(0);
   const [intensity, setIntensity] = useState(0);
@@ -12,8 +18,15 @@ export default function JogControl(props) {
       x: object.x || 0,
       y: object.y || 0,
       z: object.z || 0,
+      feed: feed,
+      intensity: intensity,
     };
+    moveObject.x *= step;
+    moveObject.y *= step;
+    moveObject.z *= step;
     console.log(moveObject);
+
+    if (isConnected) sendJogData(moveObject);
   };
 
   const handleFeedChange = (e) => {
@@ -33,6 +46,13 @@ export default function JogControl(props) {
     setIntensity(Number.parseFloat(data));
   };
 
+  const unlock = (e) => {
+    console.log(e);
+    fetch(api.post.unlock, {
+      method: "POST",
+    });
+  };
+
   return (
     <div class="tab controls">
       <div
@@ -40,7 +60,7 @@ export default function JogControl(props) {
         role="group"
         aria-label="Basic example"
       >
-        <button class="btn btn-primary btn-sm" type="button">
+        <button class="btn btn-primary btn-sm" type="button" onClick={unlock}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
