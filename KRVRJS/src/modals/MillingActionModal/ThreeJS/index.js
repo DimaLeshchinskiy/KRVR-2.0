@@ -133,7 +133,7 @@ class ThreeRender extends Component {
       //apply file postion to mesh
       let { x, y, z } = mesh.userData.filePosition;
       let box = mesh.userData.box;
-      mesh.applyMatrix(
+      mesh.applyMatrix4(
         new THREE.Matrix4().makeTranslation(x, y - box.min.y, z)
       );
       this.scene.add(mesh);
