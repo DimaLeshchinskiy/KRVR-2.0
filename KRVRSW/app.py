@@ -1,15 +1,15 @@
 from flask import Flask, send_from_directory, request
+from flask_socketio import SocketIO, emit
 import json
 
 from model import ToolEncoder, ToolTypeEncoder, ActionEncoder, ActionTypeEncoder
 from service import ToolService, ToolTypeService, ActionService, ActionTypeService, ConvertService, PostProcessService
-from core import GrblGcodeBuilder, SerialCommunication
-
-serialCommunication = SerialCommunication()
-
+from core import SerialCommunication, GrblGcodeBuilder
 
 app = Flask(__name__, static_url_path='', static_folder='public')
+socketio = SocketIO(app)
 
+serialCommunication = SerialCommunication(socketio)
 
 # Home page
 @app.route("/", defaults={'path': ''})
@@ -71,19 +71,93 @@ def convertSTEP():
 @app.route('/postProcess', methods=['POST'])
 def postProcess():
     json = request.get_json()
-    # builder1 = GrblGcodeBuilder(f=100, s=255)
-    # builder1.g0(x=10, z=10).g0(x=10, z=20).g1(y=10, z=20, s=100)
-    # builder2 = GrblGcodeBuilder()
-    # builder2.g1(x=10, z=10).g1(x=10, z=20).g0(y=10, z=20, s=100)
 
-    # builder1.appendBuilder(builder2, "comment1").g0(x=0, y=0, z=0)
-    # builder1.appendBuilder(builder2, "comment2").g0(x=0, y=0, z=0)
-
-    # return builder1.make()
     service = PostProcessService()
     gcode = service.process(json)
+    gcodeList = gcode.split("\n")
+
+    serialCommunication.send(gcode=gcodeList)
     return gcode
+
+# Connect to port
+@app.route('/serial/connect', methods=['POST'])
+def connect():
+    json = request.get_json()
+    port = json["port"]
+    print(json)
+    print(port)
+
+    serialCommunication.connect(port=port)
+    return "OK"
+
+# Disconnect port
+@app.route('/serial/disconnect', methods=['POST'])
+def disconnect():
+    serialCommunication.disconnect()
+    return "OK"
+
+# Return list of available ports
+@app.route('/serial/ports', methods=['GET'])
+def listPorts():
+    return { "ports": serialCommunication.getAvailablePorts()}
+
+# Jog async
+@app.route('/serial/jog', methods=['POST'])
+def jog():
+    json = request.get_json()["data"]
+    x = json["x"]
+    y = json["y"]
+    z = json["z"]
+    feed = json["feed"]
+
+    jogBuilder = GrblGcodeBuilder()
+    cmd = jogBuilder.jog(x=x, y=y, z=z, f=feed).make()
+
+    serialCommunication.sendAsync(cmd)
+    return "OK"
+
+# Send async command
+@app.route('/serial/asyncCommand', methods=['POST'])
+def asyncCommand():
+    json = request.get_json()
+    cmd = json["command"]
+    serialCommunication.sendAsync(cmd)
+    return "OK"
+
+# Stop serial communication
+@app.route('/serial/stop', methods=['POST'])
+def stop():
+    serialCommunication.stop()
+    return "OK"
+
+# Pause serial communication
+@app.route('/serial/pause', methods=['POST'])
+def pause():
+    serialCommunication.pause()
+    return "OK"
+
+# Resume serial communication
+@app.route('/serial/resume', methods=['POST'])
+def resume():
+    serialCommunication.resume()
+    return "OK"
+
+# Unlock serial communication
+@app.route('/serial/unlock', methods=['POST'])
+def unlock():
+    serialCommunication.unlock()
+    return "OK"
+
+# For test
+@app.route('/test', methods=['POST'])
+def test():
+    serialCommunication.unlock()
+    serialCommunication.send(["G0 X1 F100", "G1 X3 F100", "G1 X2 F100"])
+    return "OK"
 
 
 if __name__ == '__main__':
-    app.run()
+    # app.run()
+    socketio.run(app)
+
+
