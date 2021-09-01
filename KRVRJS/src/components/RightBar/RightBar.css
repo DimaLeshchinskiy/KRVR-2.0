@@ -8,4 +8,6 @@
   background-color: #ffffffeb;
   border-left: solid 1px #cecece;
   transition: width 0.1s;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
