@@ -1,11 +1,11 @@
 import "./LeftBar.css";
 
-import SettingsModal from "../../modals/SettingsModal/SettingsModal.js";
-import ToolsModal from "../../modals/ToolsModal/ToolsModal.js";
-import ConsoleModal from "../../modals/ConsoleModal/ConsoleModal.js";
-import ProcessModal from "../../modals/ProcessModal/ProcessModal.js";
-import NotificationModal from "../../modals/NotificationModal/NotificationModal.js";
-import ShutdownModal from "../../modals/ShutdownModal/ShutdownModal.js";
+import SettingsModal from "@modals/SettingsModal/SettingsModal.js";
+import ToolsModal from "@modals/ToolsModal/ToolsModal.js";
+import ConsoleModal from "@modals/ConsoleModal/ConsoleModal.js";
+import ProcessModal from "@modals/ProcessModal/ProcessModal.js";
+import NotificationModal from "@modals/NotificationModal/NotificationModal.js";
+import ShutdownModal from "@modals/ShutdownModal/ShutdownModal.js";
 
 function LeftBar() {
   function linkToVideo() {
