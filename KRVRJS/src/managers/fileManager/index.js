@@ -26,7 +26,6 @@ class FileManager {
     let ext = uploadedFile.name.split(".").pop();
     if (!availableExtensions.includes(ext)) return null;
 
-    console.log(uploadedFile);
     const file = new File();
     file.name = uploadedFile.name;
     file.file = uploadedFile;
