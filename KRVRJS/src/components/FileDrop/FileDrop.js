@@ -2,8 +2,8 @@ import "./FileDrop.css";
 
 import React, { useContext, useEffect } from "react";
 
-import FileManager from "../../managers/fileManager";
-import { FileContext } from "../../context/file";
+import FileManager from "@managers/fileManager";
+import { FileContext } from "@context/file";
 
 function FileDrop(props) {
   const element = document.body;
@@ -28,21 +28,18 @@ function FileDrop(props) {
     e.preventDefault();
     e.stopPropagation();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      console.log(e.dataTransfer);
       loadFiles([...e.dataTransfer.files]);
       e.dataTransfer.clearData();
     }
   };
 
   const loadFiles = (list) => {
-    const newFiles = [...files]
-    list
-      .forEach((file) => {
-        let newFile = FileManager.load(file);
-        if(newFile)
-          newFiles.push(newFile);
-      });
-      setFiles(newFiles);
+    const newFiles = [...files];
+    list.forEach((file) => {
+      let newFile = FileManager.load(file);
+      if (newFile) newFiles.push(newFile);
+    });
+    setFiles(newFiles);
   };
 
   useEffect(() => {
