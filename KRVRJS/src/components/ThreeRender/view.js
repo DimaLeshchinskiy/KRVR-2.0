@@ -79,11 +79,11 @@ class ThreeRender extends Component {
     this.control.addEventListener(
       "objectChange",
       function (e) {
-        const { selectedFile } = this.context;
-        const mesh = e.target.object;
-        const box = mesh.userData.box;
-        let { x, y, z } = mesh.position;
-        selectedFile.position = { x: x, y: y + box.min.y, z: z };
+        // const { getSelectedFile } = this.context;
+        // const mesh = e.target.object;
+        // const box = mesh.userData.box;
+        // let { x, y, z } = mesh.position;
+        // getSelectedFile().position = { x: x, y: y + box.min.y, z: z };
         this.renderThree();
       }.bind(this)
     );
@@ -135,12 +135,12 @@ class ThreeRender extends Component {
               ) {
                 this.control.attach(selectedObject);
 
-                const { files, setSelectedFile } = this.context;
+                const { files, setSelectedFileId } = this.context;
                 const file = files.find((f) => {
                   if (f.id === selectedObject.userData.id) return true;
                   return false;
                 });
-                setSelectedFile(file);
+                setSelectedFileId(file.id);
 
                 this.renderThree();
                 return true;
@@ -251,7 +251,7 @@ class ThreeRender extends Component {
     this.control.setMode(this.props.editTool);
 
     //files
-    const { files, selectedFile } = this.context;
+    const { files, selectedFileId } = this.context;
 
     this.scene.children.forEach((object) => {
       let className = object.userData.className;
@@ -291,10 +291,10 @@ class ThreeRender extends Component {
           );
         });
 
-      if (selectedFile && selectedFile.id) {
+      if (selectedFileId) {
         this.control.detach();
         this.scene.children.forEach((mesh) => {
-          if (mesh.userData.id === selectedFile.id) this.control.attach(mesh);
+          if (mesh.userData.id === selectedFileId) this.control.attach(mesh);
         });
       }
 

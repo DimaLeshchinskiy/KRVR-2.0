@@ -7,47 +7,46 @@ import { createAction } from "@managers/actionManager";
 import { FileContext } from "@context/file";
 
 export default function FileMillingActions(props) {
-  const { selectedFile } = useContext(FileContext);
+  const { getSelectedFile } = useContext(FileContext);
   const [actions, setActions] = useState([]);
 
-  console.log(selectedFile);
-
   useEffect(() => {
-    setActions(selectedFile.millingActions);
+    const selectedFile = getSelectedFile();
+    if (selectedFile) setActions(selectedFile.millingActions);
   });
 
   const onAddClick = () => {
     let newActions = [...actions, createAction()];
-    selectedFile.millingActions = newActions;
+    getSelectedFile().millingActions = newActions;
     setActions([...newActions]);
   };
 
   const onEditClick = (action) => {
     console.log(action);
-    let newActions = selectedFile.millingActions.map((_action) => {
+    let newActions = getSelectedFile().millingActions.map((_action) => {
       if (_action.id === action.id) _action.isEdit = true;
       return _action;
     });
-    selectedFile.millingActions = newActions;
+    getSelectedFile().millingActions = newActions;
     setActions([...newActions]);
   };
 
   const onDeleteClick = (action) => {
     console.log(action);
-    let newActions = selectedFile.millingActions.filter(
+    let newActions = getSelectedFile().millingActions.filter(
       (_action) => _action.id != action.id
     );
-    selectedFile.millingActions = newActions;
+    getSelectedFile().millingActions = newActions;
     setActions([...newActions]);
   };
 
   const onSaveAction = (action) => {
     console.log(action);
-    let newActions = selectedFile.millingActions.map((_action) => {
+    let newActions = getSelectedFile().millingActions.map((_action) => {
       _action.isEdit = false;
       return _action;
     });
-    selectedFile.millingActions = newActions;
+    getSelectedFile().millingActions = newActions;
     setActions([...newActions]);
   };
 
@@ -73,11 +72,7 @@ export default function FileMillingActions(props) {
                 </button>
               </div>
             </div>
-            <MillingActionModal
-              action={action}
-              onSaveAction={onSaveAction}
-              file={selectedFile}
-            />
+            <MillingActionModal action={action} onSaveAction={onSaveAction} />
           </React.Fragment>
         );
       })}

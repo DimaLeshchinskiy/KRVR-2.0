@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { getActionTypes } from "@managers/actionManager";
 import { getTools } from "@managers/toolManager";
 
-function MillingActionModal({ action, file, onSaveAction }) {
+function MillingActionModal({ action, onSaveAction }) {
   const [isPickModeEnable, pickModeEnable] = useState(false);
   const [pickPropertyName, setPickPropertyName] = useState("");
 
@@ -88,7 +88,6 @@ function MillingActionModal({ action, file, onSaveAction }) {
           <div class="row g-3 justify-content-between">
             <div class="col-6">
               <ThreeRender
-                file={file}
                 isPickModeEnable={isPickModeEnable}
                 pickPropertyName={pickPropertyName}
                 onPick={onPick}

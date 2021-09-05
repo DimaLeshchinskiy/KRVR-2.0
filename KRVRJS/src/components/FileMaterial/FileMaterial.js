@@ -1,14 +1,26 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { FileContext } from "@context/file";
 
-export default function FileMaterial({ selectedFile }) {
-  const [x, setX] = useState(selectedFile.material.x);
-  const [y, setY] = useState(selectedFile.material.y);
-  const [z, setZ] = useState(selectedFile.material.z);
-  const [width, setWidth] = useState(selectedFile.material.width);
-  const [height, setHeight] = useState(selectedFile.material.height);
-  const [depth, setDepth] = useState(selectedFile.material.depth);
+export default function FileMaterial() {
+  const { selectedFileId, getSelectedFile } = useContext(FileContext);
+
+  const selectedFile = getSelectedFile();
+
+  const [x, setX] = useState(selectedFile ? selectedFile.material.x : 0);
+  const [y, setY] = useState(selectedFile ? selectedFile.material.y : 0);
+  const [z, setZ] = useState(selectedFile ? selectedFile.material.z : 0);
+  const [width, setWidth] = useState(
+    selectedFile ? selectedFile.material.width : 0
+  );
+  const [height, setHeight] = useState(
+    selectedFile ? selectedFile.material.height : 0
+  );
+  const [depth, setDepth] = useState(
+    selectedFile ? selectedFile.material.depth : 0
+  );
 
   const updateMaterial = () => {
+    const selectedFile = getSelectedFile();
     selectedFile.material.x = parseInt(x);
     selectedFile.material.y = parseInt(y);
     selectedFile.material.z = parseInt(z);

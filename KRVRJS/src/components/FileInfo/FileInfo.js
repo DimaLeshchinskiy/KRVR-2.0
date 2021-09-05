@@ -1,5 +1,9 @@
-export default function FileInfo(props) {
-  const selectedFile = props.selectedFile;
+import { useContext } from "react";
+import { FileContext } from "@context/file";
+
+export default function FileInfo() {
+  const { getSelectedFile } = useContext(FileContext);
+  const selectedFile = getSelectedFile();
 
   const formatBytes = (bytes) => {
     if (bytes == 0) return "0 Bytes";
@@ -11,8 +15,12 @@ export default function FileInfo(props) {
 
   return (
     <ul class="list-group list-group-flush">
-      <li class="list-group-item">Name: {selectedFile.name}</li>
-      <li class="list-group-item">Size: {formatBytes(selectedFile.size)}</li>
+      <li class="list-group-item">
+        Name: {selectedFile ? selectedFile.name : ""}
+      </li>
+      <li class="list-group-item">
+        Size: {formatBytes(selectedFile ? selectedFile.size : "")}
+      </li>
     </ul>
   );
 }

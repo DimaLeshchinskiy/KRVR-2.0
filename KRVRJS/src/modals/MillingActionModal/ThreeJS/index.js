@@ -8,6 +8,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import RenderManager from "@managers/renderManager";
 import SurfaceSplitterManager from "@managers/surfaceSplitterManager";
 
+import { FileContext } from "@context/file";
+
 import { disposeObject3D, compareMeshes } from "@util/ThreeJS";
 
 const getDimension = (object, originFace) => {
@@ -38,6 +40,8 @@ const renderer = new THREE.WebGLRenderer({
 });
 
 class ThreeRender extends Component {
+  static contextType = FileContext;
+
   constructor(props) {
     super(props);
     this.state = { renderedMesh: null };
@@ -126,8 +130,8 @@ class ThreeRender extends Component {
 
     window.addEventListener("resize", this.onWindowResize);
 
-    const file = this.props.file;
-    RenderManager.render([file]).then((meshes) => {
+    const { getSelectedFile } = this.context;
+    RenderManager.render([getSelectedFile()]).then((meshes) => {
       const mesh = meshes[0];
 
       //apply file postion to mesh

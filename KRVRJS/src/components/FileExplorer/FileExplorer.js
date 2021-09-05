@@ -7,7 +7,7 @@ import { FileContext } from "@context/file";
 import FileSettings from "@components/FileSettings/FileSettings.js";
 
 export default function FileExplorer() {
-  const { files, setFiles, selectedFile, setSelectedFile } =
+  const { files, setFiles, selectedFileId, setSelectedFileId } =
     useContext(FileContext);
 
   const deleteFile = (fileId) => {
@@ -16,14 +16,14 @@ export default function FileExplorer() {
         return file.id !== fileId;
       })
     );
+
+    if (fileId === selectedFileId) {
+      setSelectedFileId("");
+    }
   };
 
   const selectFile = (fileId) => {
-    setSelectedFile(
-      files.find((file) => {
-        return file.id === fileId;
-      })
-    );
+    setSelectedFileId(fileId);
   };
 
   const materialVisibilityChange = (e) => {};
@@ -91,7 +91,7 @@ export default function FileExplorer() {
         <tbody>
           {files.map((file, index) => {
             let classes = [];
-            if (selectedFile.id === file.id) classes.push("table-primary");
+            if (selectedFileId === file.id) classes.push("table-primary");
             return (
               <tr
                 class={classes.join(" ")}
@@ -138,7 +138,7 @@ export default function FileExplorer() {
         </tbody>
       </table>
       <hr />
-      <FileSettings selectedFile={selectedFile} />
+      <FileSettings />
       <hr />
     </div>
   );

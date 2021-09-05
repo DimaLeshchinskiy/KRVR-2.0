@@ -1,17 +1,18 @@
 import config from "./config.js";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import React from "react";
+import { FileContext } from "@context/file";
 
 export default function FileSettings(props) {
   const [settingId, setSettingId] = useState(config[0].id);
-  const selectedFile = props.selectedFile;
+  const { selectedFileId } = useContext(FileContext);
 
   const onButtonClick = function (id) {
     if (settingId === id) return;
     setSettingId(id);
   };
 
-  if (!selectedFile.id)
+  if (selectedFileId.length === 0)
     return (
       <>
         <div class="tab emptyExplorer">
@@ -70,9 +71,7 @@ export default function FileSettings(props) {
                 role="tabpanel"
                 aria-labelledby="v-pills-home-tab"
               >
-                {React.createElement(el.content, {
-                  selectedFile: selectedFile,
-                })}
+                {React.createElement(el.content)}
               </div>
             );
           })}
