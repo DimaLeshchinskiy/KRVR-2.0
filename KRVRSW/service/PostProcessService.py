@@ -17,11 +17,6 @@ class SingletonMeta(type):
 
 
 class PostProcessService(metaclass=SingletonMeta):
-    # def test():
-    #     self.SerialComunicationInstance.getAvailablePorts()
-    #     self.SerialComunicationInstance.connect(port="COM3")
-    #     self.SerialComunicationInstance.send(gcode=["string", "string"])
-    #     self.SerialComunicationInstance.disconnect()
 
     def process(self, json):
         
