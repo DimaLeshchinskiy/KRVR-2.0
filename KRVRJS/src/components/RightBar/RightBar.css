@@ -1,13 +1,28 @@
 .rightBar {
   width: 84px;
   height: 100%;
-  position: fixed;
-  right: 0px;
   display: flex;
   flex-direction: column;
   background-color: #ffffffeb;
   border-left: solid 1px #cecece;
-  transition: width 0.1s;
   overflow-y: auto;
   overflow-x: hidden;
+  transition: width 0.1s ease-in-out;
+}
+
+.rightBar:hover {
+  width: 300px;
+}
+
+.rightBar:hover th:nth-child(1),
+.rightBar:hover td:nth-child(1) {
+  padding-left: 0px !important;
+  text-align: center;
+}
+
+.navigationPanel {
+  display: flex;
+  height: 100%;
+  position: absolute;
+  right: 0px;
 }

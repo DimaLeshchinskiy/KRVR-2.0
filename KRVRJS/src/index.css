@@ -58,16 +58,6 @@ tbody tr:hover {
   background-color: #d0d0d0;
 }
 
-.rightBar:hover {
-  width: 300px;
-}
-
-.rightBar:hover th:nth-child(1),
-.rightBar:hover td:nth-child(1) {
-  padding-left: 0px !important;
-  text-align: center;
-}
-
 /*Scrollbar*/
 ::-webkit-scrollbar {
   height: 12px;

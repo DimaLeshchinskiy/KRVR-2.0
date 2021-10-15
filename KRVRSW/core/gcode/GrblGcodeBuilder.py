@@ -216,7 +216,7 @@ class GrblGcodeBuilder:
         return self
 
     def jog(self, x=None, y=None, z=None, f=None):
-        command = GcodeCommand(command="$J=", globalParameters=["F"])
+        command = GcodeCommand(command="$J= G91", globalParameters=["F"])
 
         if x or x == 0:
             command.addParametr("X", str(x))

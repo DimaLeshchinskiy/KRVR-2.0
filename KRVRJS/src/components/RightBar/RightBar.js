@@ -1,13 +1,17 @@
 import "./RightBar.css";
 
-import FileExplorer from "../FileExplorer/FileExplorer.js";
-import JogControl from "../JogControl/JogControl.js";
+import FileExplorer from "@components/FileExplorer/FileExplorer.js";
+import JogControl from "@components/JogControl/JogControl.js";
+import ToastContainer from "@components/ToastContainer/ToastContainer.js";
 
 function RightBar() {
   return (
-    <div class="rightBar">
-      <FileExplorer />
-      <JogControl />
+    <div class="navigationPanel">
+      <ToastContainer />
+      <div class="rightBar">
+        <FileExplorer />
+        <JogControl />
+      </div>
     </div>
   );
 }

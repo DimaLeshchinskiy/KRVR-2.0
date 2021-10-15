@@ -1,0 +1,11 @@
+.toast-container {
+  position: absolute;
+  left: -355px;
+  top: 5px;
+  width: auto;
+  max-width: none;
+}
+
+.toast {
+  opacity: 1 !important;
+}

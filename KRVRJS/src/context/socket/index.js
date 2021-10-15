@@ -25,15 +25,18 @@ export const SocketContextProvider = (props) => {
   useEffect(() => {
     socket.off("onPause");
     socket.on("onPause", () => {
+      console.log("onPause");
       setProgramState(programStates.PAUSE);
     });
   });
+
   useEffect(() => {
     socket.off("onStop");
     socket.on("onStop", () => {
       setProgramState(programStates.STOP);
     });
   });
+
   useEffect(() => {
     socket.off("onResume");
     socket.on("onResume", () => {

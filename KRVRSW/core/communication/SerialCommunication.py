@@ -104,13 +104,18 @@ class SerialCommunication:
         if self.isConnected():
             self.connection.write("{}\n".format(gcode).encode())
             self.sendCallback(gcode)
+
+            if gcode == "M0":
+                self.pauseCallback()
+
             while True:
                 line =  self.connection.readline().decode()
                 self.responseCallback(line)
                 if "ok" in line:
-                    return
+                    break
                 else:
                     time.sleep(0.1)
+            
 
     def unlock(self):
         if self.isConnected():
