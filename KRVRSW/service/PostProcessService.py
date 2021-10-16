@@ -37,6 +37,7 @@ class PostProcessService(metaclass=SingletonMeta):
         #files process
         for file in json["files"]:
 
+            data = file["fileData"]
             materialModel = materialService.create(file["material"])
 
             for action in file["millingActions"]:
@@ -62,6 +63,7 @@ class PostProcessService(metaclass=SingletonMeta):
                     mainGcodeBuilder.changeTool()
 
                 gcodeBuilder = actionStrategy.makeGcode(
+                    data=data,
                     action=actionModel, 
                     tool=toolModel, 
                     material=materialModel,

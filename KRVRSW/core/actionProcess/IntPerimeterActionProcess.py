@@ -42,7 +42,7 @@ class IntPerimeterActionProcess:
 
         return mainGcodeBuilder
 
-    def makeGcode(self, action=None, tool=None, material=None, objectOptions=None) -> GrblGcodeBuilder:
+    def makeGcode(self, data=None, action=None, tool=None, material=None, objectOptions=None) -> GrblGcodeBuilder:
         mainGcodeBuilder = GrblGcodeBuilder()
 
         self.toolWidth = tool.getFieldValue("width")
