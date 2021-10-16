@@ -14,22 +14,10 @@ function loadTexture(url) {
   return loader.load(url);
 }
 
-function loadSVG(url, image) {
+function loadSVG(url) {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = image.width;
-    canvas.height = image.height;
-    const ctx = canvas.getContext("2d");
-
-    const img = document.createElement("img");
-    img.setAttribute("src", url);
-
-    img.onload = function () {
-      ctx.drawImage(img, 0, 0);
-
-      var texture = new THREE.Texture(canvas);
-      resolve(texture);
-    };
+    const loader = new SVGLoader();
+    loader.load(url, resolve);
   });
 }
 
@@ -101,55 +89,6 @@ async function renderRasterImages(files) {
 }
 
 async function renderVectorImages(files) {
-  /*let promises = files.map(file => {
-    return FileManager.readFile(file, FileManager.Types.DATAURL);
-  });
-
-  let values = await Promise.all(promises);
-  let meshes = [];
-
-  for(const val of values){
-    const svg = await loadSVG(val.data);
-
-    console.log(svg);
-
-    const paths = svg.paths;
-    const geometries = [];
-		const group = new THREE.Object3D()
-    const material = new THREE.MeshBasicMaterial( {
-      color: 0x000000
-    } );
-
-		for ( let i = 0; i < paths.length; i ++ ) {
-
-			const path = paths[ i ];
-
-			const shapes = SVGLoader.createShapes( path );
-
-			for ( let j = 0; j < shapes.length; j++ ) {
-
-				const shape = shapes[ j ];
-				const geometry = new THREE.ShapeGeometry( shape );
-				const mesh = new THREE.Mesh( geometry, material );
-				group.add( mesh );
-
-			}
-
-		}
-
-    group.applyMatrix4( new THREE.Matrix4().makeRotationX( -Math.PI / 2 ) );
-    group.applyMatrix4( new THREE.Matrix4().makeRotationY( Math.PI ) );
-    group.userData = {
-      id: val.file.id,
-      type: "svg"
-    };
-
-		meshes.push(group);
-
-  }
-
-  return meshes;*/
-
   let promises = files.map((file) => {
     return FileManager.readFile(file, FileManager.Types.DATAURL);
   });
@@ -158,36 +97,44 @@ async function renderVectorImages(files) {
   let meshes = [];
 
   for (const val of values) {
-    const img = await FileManager.file2img(val.file);
-    const texture = await loadSVG(val.data, img);
+    const svg = await loadSVG(val.data);
 
-    const materialTexture = new THREE.MeshBasicMaterial({
-      map: texture,
-      color: 0xffffff,
-    });
-    const materialBack = new THREE.MeshBasicMaterial({
+    const paths = svg.paths;
+    const group = new THREE.Object3D();
+    group.scale.y *= -1;
+    const material = new THREE.MeshBasicMaterial({
       color: 0x000000,
+      side: THREE.DoubleSide,
+      depthWrite: false,
     });
 
-    const geometry = new THREE.BoxGeometry(img.width, img.height, 1);
+    for (let i = 0; i < paths.length; i++) {
+      const path = paths[i];
 
-    const materials = [
-      materialBack,
-      materialBack,
-      materialBack,
-      materialBack,
-      materialTexture,
-      materialBack,
-    ];
-    const mesh = new THREE.Mesh(geometry, materials);
-    mesh.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-    mesh.userData = {
+      for (let j = 0; j < path.subPaths.length; j++) {
+        const subPath = path.subPaths[j];
+        console.log(path.userData.style);
+        const geometry = SVGLoader.pointsToStroke(
+          subPath.getPoints(),
+          path.userData.style
+        );
+        if (geometry) {
+          const mesh = new THREE.Mesh(geometry, material);
+          group.add(mesh);
+        }
+      }
+    }
+
+    group.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+    let box = getBoudingOfObject3D(group);
+    group.userData = {
       id: val.file.id,
       filePosition: val.file.position,
+      box: box,
       type: "img",
     };
 
-    meshes.push(mesh);
+    meshes.push(group);
   }
 
   return meshes;
@@ -314,7 +261,7 @@ const RenderManager = {
       files.filter((file) => file.ext() == "step")
     );
 
-    return [...threeD_objects, ...step_objects];
+    return [...threeD_objects, ...step_objects, ...vector_images];
   },
 };
 
