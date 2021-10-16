@@ -80,5 +80,17 @@
         "inputName":"pocket_face"
       }
     ]
+  },
+  {
+    "id":"5",
+    "title":"SVG path",
+    "type":"svg_path",
+    "fields":[
+      {
+        "label":"Depth",
+        "inputType":"number",
+        "inputName":"depth"
+      }
+    ]
   }
 ]

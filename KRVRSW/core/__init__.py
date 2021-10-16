@@ -6,3 +6,4 @@ from .actionProcess.FaceActionProcess import FaceActionProcess
 from .actionProcess.PocketActionProcess import PocketActionProcess
 from .actionProcess.ExtPerimeterActionProcess import ExtPerimeterActionProcess
 from .actionProcess.IntPerimeterActionProcess import IntPerimeterActionProcess
+from .actionProcess.SvgPathActionProcess import SvgPathActionProcess

@@ -68,15 +68,17 @@ def convertSTEP():
 
 
 # Postprocess
-@app.route('/postProcess', methods=['POST'])
-def postProcess():
+@app.route('/postProcess/<debug>', methods=['POST'])
+def postProcess(debug):
     json = request.get_json()
 
     service = PostProcessService()
     gcode = service.process(json)
-    gcodeList = gcode.split("\n")
 
-    serialCommunication.send(gcode=gcodeList)
+    if not debug:
+        gcodeList = gcode.split("\n")
+        serialCommunication.send(gcode=gcodeList)
+        
     return gcode
 
 # Connect to port
