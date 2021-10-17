@@ -6,6 +6,8 @@ import { FileContext } from "@context/file";
 
 import FileSettings from "@components/FileSettings/FileSettings.js";
 
+import EditorModal from "@modals/EditorModal/EditorModal.js";
+
 export default function FileExplorer() {
   const { files, setFiles, selectedFileId, setSelectedFileId } =
     useContext(FileContext);
@@ -35,6 +37,7 @@ export default function FileExplorer() {
           <div>
             <p class="fw-light">Explorer is empty</p>
             <p class="fw-light">Drag an drop files to see them here</p>
+            <EditorModal />
           </div>
         </div>
         <hr />
