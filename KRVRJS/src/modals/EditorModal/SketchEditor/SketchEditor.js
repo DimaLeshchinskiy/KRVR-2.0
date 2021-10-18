@@ -91,8 +91,6 @@ function SketchEditor({ handleClose }) {
 
   const exportAsSvg = () => {
     let svg = canvas.toSVG();
-    console.log(svg);
-
     const newFiles = [...files];
 
     let file = new File([svg], "mySvg.svg", {

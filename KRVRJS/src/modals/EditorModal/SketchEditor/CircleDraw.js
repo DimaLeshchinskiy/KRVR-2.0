@@ -4,50 +4,49 @@ function CircleDraw(canvas, onDrawCircle) {
   var ellipse, isDown, origX, origY;
 
   const onMouseMove = (o) => {
-    if (!isDown) {
-      return;
-    }
-
+    if (!isDown) return;
     var pointer = canvas.getPointer(o.e);
+    var rx = Math.abs(origX - pointer.x) / 2;
+    var ry = Math.abs(origY - pointer.y) / 2;
+    if (rx > ellipse.strokeWidth) {
+      rx -= ellipse.strokeWidth / 2;
+    }
+    if (ry > ellipse.strokeWidth) {
+      ry -= ellipse.strokeWidth / 2;
+    }
+    ellipse.set({ rx: rx, ry: ry });
 
     if (origX > pointer.x) {
-      ellipse.set({
-        left: Math.abs(pointer.x),
-      });
+      ellipse.set({ originX: "right" });
+    } else {
+      ellipse.set({ originX: "left" });
     }
-
     if (origY > pointer.y) {
-      ellipse.set({
-        top: Math.abs(pointer.y),
-      });
+      ellipse.set({ originY: "bottom" });
+    } else {
+      ellipse.set({ originY: "top" });
     }
-
-    ellipse.set({
-      rx: Math.abs(origX - pointer.x) / 2,
-    });
-    ellipse.set({
-      ry: Math.abs(origY - pointer.y) / 2,
-    });
-    ellipse.setCoords();
     canvas.renderAll();
   };
 
   const onMouseDown = (o) => {
     isDown = true;
-    let pointer = canvas.getPointer(o.e);
+    var pointer = canvas.getPointer(o.e);
     origX = pointer.x;
     origY = pointer.y;
-
     ellipse = new fabric.Ellipse({
-      top: origY,
       left: origX,
-      rx: 0,
-      ry: 0,
+      top: origY,
+      originX: "left",
+      originY: "top",
+      rx: pointer.x - origX,
+      ry: pointer.y - origY,
+      angle: 0,
+      fill: "",
       stroke: "black",
       strokeWidth: 5,
-      fill: "rgba(0,0,0,0)",
+      lockRotation: true,
     });
-
     canvas.add(ellipse);
   };
 
