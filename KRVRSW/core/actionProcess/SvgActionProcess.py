@@ -1,6 +1,6 @@
 from core import GrblGcodeBuilder
 
-class SvgPathActionProcess:
+class SvgActionProcess:
 
     def __init__(self):
         pass

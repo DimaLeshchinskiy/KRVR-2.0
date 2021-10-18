@@ -83,8 +83,8 @@
   },
   {
     "id":"5",
-    "title":"SVG path",
-    "type":"svg_path",
+    "title":"SVG",
+    "type":"svg",
     "fields":[
       {
         "label":"Depth",

@@ -3,7 +3,7 @@ import sys
 sys.path.append("..")
 
 from service import ActionTypeService, ToolService, ActionService, MaterialService
-from core import FaceActionProcess, PocketActionProcess, ExtPerimeterActionProcess, IntPerimeterActionProcess, SvgPathActionProcess, GrblGcodeBuilder
+from core import FaceActionProcess, PocketActionProcess, ExtPerimeterActionProcess, IntPerimeterActionProcess, SvgActionProcess, GrblGcodeBuilder
 
 
 class SingletonMeta(type):
@@ -51,8 +51,8 @@ class PostProcessService(metaclass=SingletonMeta):
                     actionStrategy = ExtPerimeterActionProcess()
                 elif actionType.type == "int_perimeter":
                     actionStrategy = IntPerimeterActionProcess()
-                elif actionType.type == "svg_path":
-                    actionStrategy = SvgPathActionProcess()
+                elif actionType.type == "svg":
+                    actionStrategy = SvgActionProcess()
                 else:
                     continue
                 
