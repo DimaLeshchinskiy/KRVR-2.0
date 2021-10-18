@@ -140,6 +140,9 @@ export default function FileExplorer() {
           })}
         </tbody>
       </table>
+      <div class="centerEditoModal">
+        <EditorModal />
+      </div>
       <hr />
       <FileSettings />
       <hr />

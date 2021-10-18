@@ -7,3 +7,11 @@
   text-align: center;
   margin: auto;
 }
+
+.tab .centerEditoModal {
+  display: flex;
+}
+
+.tab .centerEditoModal > * {
+  margin: 0 auto;
+}
