@@ -11,28 +11,47 @@ class SvgActionProcess:
         self.millingDepth = None
         self.xOffset = 0
         self.zOffset = 0
+
+    def offsetg0(self, gcodeBuilder, x, z, y):
+        gcodeBuilder.g0(x = x + self.xOffset, z = z + self.zOffset, y = y)
+
+    def offsetg1(self, gcodeBuilder, x, z, y):
+        gcodeBuilder.g1(x = x + self.xOffset, z = z + self.zOffset, y = y)
     
-    def makeLine(line):
-        pass
+    def makeLine(self, line):
+        gcodeBuilder = GrblGcodeBuilder()
+        
+        xStart = line.values["x1"]
+        zStart = line.values["y1"]
+        xEnd = line.values["x2"]
+        zEnd = line.values["y2"]
+        y = self.materialHeight - self.millingDepth
+
+        self.offsetg0(gcodeBuilder, xStart, zStart, self.materialHeight + 1)
+
+        self.offsetg1(gcodeBuilder, xStart, zStart, y)
+        self.offsetg1(gcodeBuilder, xEnd, zEnd, y)
+
+        return gcodeBuilder
     
-    def makePolyline(polyline):
+    def makePolyline(self, polyline):
         pass
 
-    def makePath(path):
+    def makePath(self, path):
         pass
 
-    def makeRect(rect):
+    def makeRect(self, rect):
         pass
 
-    def makePolygon(polygon):
+    def makePolygon(self, polygon):
         pass
 
-    def makeCircle(circle):
+    def makeCircle(self, circle):
         pass
 
-    def makeEllipse(ellipse):
+    def makeEllipse(self, ellipse):
         pass
-    
+
     # data must be path to .svg file
     def makeGcode(self, data=None, action=None, tool=None, material=None, objectOptions=None) -> GrblGcodeBuilder:
         self.toolWidth = tool.getFieldValue("width")
