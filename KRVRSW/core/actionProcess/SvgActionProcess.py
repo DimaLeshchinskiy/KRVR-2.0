@@ -64,7 +64,8 @@ class SvgActionProcess:
 
             self.millLine(gcodeBuilder, xEnd, zEnd)
 
-        xEnd, zEnd = points[-1].split(",")
+        xEnd = points[-2]
+        zEnd = points[-1]
         self.stopMilling(gcodeBuilder, xEnd, zEnd)
 
         return gcodeBuilder
