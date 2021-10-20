@@ -20,22 +20,40 @@ class SvgActionProcess:
     
     def makeLine(self, line):
         gcodeBuilder = GrblGcodeBuilder()
-        
+
         xStart = line.values["x1"]
         zStart = line.values["y1"]
         xEnd = line.values["x2"]
         zEnd = line.values["y2"]
-        y = self.materialHeight - self.millingDepth
 
         self.offsetg0(gcodeBuilder, xStart, zStart, self.materialHeight + 1)
+
+        self.millLine(gcodeBuilder, xStart, zStart, xEnd, zEnd)
+
+        return gcodeBuilder
+    
+    def millLine(self, gcodeBuilder, xStart, zStart, xEnd, zEnd, y = None):
+        if y is None:
+            y = self.materialHeight - self.millingDepth
 
         self.offsetg1(gcodeBuilder, xStart, zStart, y)
         self.offsetg1(gcodeBuilder, xEnd, zEnd, y)
 
-        return gcodeBuilder
-    
     def makePolyline(self, polyline):
-        pass
+        gcodeBuilder = GrblGcodeBuilder()
+
+        points = polyline.values["points"].split(" ")
+        xStart, zStart = points[0].split(",")
+
+        self.offsetg0(gcodeBuilder, xStart, zStart, self.materialHeight + 1)
+
+        for i in range(len(points) - 1):
+            xStart, zStart = points[i].split(",")
+            xEnd, zEnd = points[i + 1].split(",")
+
+            self.millLine(gcodeBuilder, xStart, zStart, xEnd, zEnd)
+
+        return gcodeBuilder
 
     def makePath(self, path):
         pass
