@@ -6,11 +6,19 @@
 
 .editor_toolbar {
   display: flex;
+  align-items: center;
+  grid-gap: 10px;
   gap: 10px;
+  margin-bottom: 5px;
 }
 
 .editor_tool {
   padding: 5px;
+}
+
+.editor_tool.active {
+  background-color: var(--bs-blue);
+  border-radius: 3px;
 }
 
 .editor_tool svg {
