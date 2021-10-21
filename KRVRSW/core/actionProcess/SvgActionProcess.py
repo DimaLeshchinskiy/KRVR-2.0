@@ -1,5 +1,6 @@
 from core import GrblGcodeBuilder
 from svgelements import *
+import svgpathtools
 import numpy
 import re
 from enum import Enum
@@ -70,55 +71,95 @@ class SvgActionProcess:
 
         return gcodeBuilder
 
-    # not the best idea dosn't improve readability that much
-    class PathSymbol(Enum):
-        MOVE_TO = "M"
-        HORZ_LINE = "H"
-        VERT_LINE = "V"
-        LINE_TO = "L"
-        CLOSE_PATH = "Z"
-        QUAD_BEZIER = "Q"
-        CUBIC_BEZIER = "C"
-        # all of these have lower case versions (excep M, Z) which are relative to previous point
-        # TODO
+    # svgpathtools should convert all commands to these types
+    class PathCommand(Enum):
+        LINE = svgpathtools.path.Line
+        QUAD_BEZIER = svgpathtools.path.QuadraticBezier
+        CUBIC_BEZIER = svgpathtools.path.CubicBezier
+        ARC = svgpathtools.path.Arc
 
-    # uses numpy for performance
+    # bezier calculations use numpy for performance
     def comb(self, n, k):
         return numpy.math.factorial(n) / (numpy.math.factorial(n - k) * numpy.math.factorial(k))
 
-    def bezierCurve(self, points, t):
+    def bezierCurveFunc(self, points, t):
         if t < 0 or t > 1:
             raise ValueError(f"t must be in range 0 <= t <= 1! (t = {t})")
 
-        resultPoint = 0
+        resultPoint = numpy.array([0, 0])
         n = len(points) - 1
         for i in range(len(points)):
             resultPoint += self.comb(n, i) * numpy.power(1 - t, n - i) * numpy.power(t, i) * points[i]
 
         return resultPoint
 
-    # path action generator
-    def parseDString(self, dString):
+    def makePathLine(self, gcodeBuilder, line):
+        xEnd = line.end.real
+        zEnd = line.end.imag
+        self.millLine(gcodeBuilder, xEnd, zEnd)
+
+    #doesn't mill to the start point (probably chnage for disconected paths)
+    def makeBezier(self, gcodeBuilder, points):
+
+        t = 0
+        step = 1 / self.curveSmothness
+        while t <= 1:
+            xEnd, zEnd = self.bezierCurveFunc(points, t)
+            self.millLine(gcodeBuilder, xEnd, zEnd)
+
+            t += step
+
+        # t often != 1 beacause of float arithmetic
+        # so hard code line to end point
+        xEnd, zEnd = self.bezierCurveFunc(points, 1)
+        self.millLine(gcodeBuilder, xEnd, zEnd)
+
+
+    def makeQuadBezier(self, gcodeBuilder, quadBezier):
+        startPoint = numpy.array([quadBezier.start.real, quadBezier.start.imag], dtype=float)
+        controlPoint = numpy.array([quadBezier.control.real, quadBezier.control.imag], dtype=float)
+        endPoint = numpy.array([quadBezier.end.real, quadBezier.end.imag], dtype=float)
+
+        self.makeBezier(gcodeBuilder, [startPoint, controlPoint, endPoint])
+
+    def makeCubicBezier(self, gcodeBuilder, cubicBezier):
+        startPoint = numpy.array([cubicBezier.start.real, cubicBezier.start.imag], dtype=float)
+        controlPoint1 = numpy.array([cubicBezier.control1.real, cubicBezier.control1.imag], dtype=float)
+        controlPoint2 = numpy.array([cubicBezier.control2.real, cubicBezier.control2.imag], dtype=float)
+        endPoint = numpy.array([cubicBezier.end.real, cubicBezier.end.imag], dtype=float)
+
+        self.makeBezier(gcodeBuilder, [startPoint, controlPoint1, controlPoint2, endPoint])
+
+    def makeArc(self, gcodeBuilder, arc):
         pass
 
+    #doesn't handle disconected path
     def makePath(self, path):
         gcodeBuilder = GrblGcodeBuilder()
+        parsedDString = svgpathtools.parse_path(path.values["d"])
 
-        hasMoveTo = False
-        for action, points in self.parseDString(path.values["d"]):
+        xStart = parsedDString[0].start.real
+        zStart = parsedDString[0].start.imag
+        self.startMilling(gcodeBuilder, xStart, zStart)
+
+        for command in parsedDString:
             
-            # probably make function for each action
-            if action == self.PathSymbol.MOVE_TO:
-                xStart, zStart = points[0]
-                self.startMilling(gcodeBuilder, xStart, zStart)
-                hasMoveTo = True
+            if isinstance(command, self.PathCommand.LINE):
+                self.makePathLine(gcodeBuilder, command)
 
-            elif action == self.PathSymbol.VERT_LINE:
-                pass
+            elif isinstance(command, self.PathCommand.QUAD_BEZIER):
+                self.makeQuadBezier(gcodeBuilder, command)
 
-            # path isn't valid if it doesn't start with M
-            if not hasMoveTo:
-                raise ValueError("Path has to have M at start")
+            elif isinstance(command, self.PathCommand.CUBIC_BEZIER):
+                self.makeCubicBezier(gcodeBuilder, command)
+
+            elif isinstance(command, self.PathCommand.ARC):
+                # TODO
+                self.makeArc(gcodeBuilder, command)
+
+        xEnd = parsedDString[-1].end.real
+        zEnd = parsedDString[-1].end.imag
+        self.stopMilling(gcodeBuilder, xEnd, zEnd)
 
         return gcodeBuilder
 
@@ -140,7 +181,7 @@ class SvgActionProcess:
         self.toolWidth = tool.getFieldValue("width")
         self.toolLength = tool.getFieldValue("length")
         self.materialHeight = material.height
-        # self.millingDepth = ?
+        self.millingDepth = objectOptions["size"]["max"]["y"] * 2
         # self.curveSmoothness = ?
         # self.xOffset = ?
         # self.zOffset = ?
