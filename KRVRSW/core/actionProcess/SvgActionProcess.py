@@ -53,20 +53,20 @@ class SvgActionProcess:
         gcodeBuilder = GrblGcodeBuilder()
 
         # 2 possible formats 1: "x0 y0 x1 y1..." 2: "x0,y0 x1,y1..."
-        points = re.split(r"\s|,", polyline.values["points"])
-        xStart = points[0]
-        zStart = points[1]
+        coords = re.split(r"\s|,", polyline.values["points"])
+        xStart = coords[0]
+        zStart = coords[1]
 
         self.startMilling(gcodeBuilder, xStart, zStart)
 
-        for i in range(2, len(points), 2):
-            xEnd = points[i]
-            zEnd = points[i + 1]
+        for i in range(2, len(coords), 2):
+            xEnd = coords[i]
+            zEnd = coords[i + 1]
 
             self.millLine(gcodeBuilder, xEnd, zEnd)
 
-        xEnd = points[-2]
-        zEnd = points[-1]
+        xEnd = coords[-2]
+        zEnd = coords[-1]
         self.stopMilling(gcodeBuilder, xEnd, zEnd)
 
         return gcodeBuilder
@@ -191,7 +191,27 @@ class SvgActionProcess:
         return gcodeBuilder
 
     def makePolygon(self, polygon):
-        pass
+        gcodeBuilder = GrblGcodeBuilder()
+
+        # 2 possible formats 1: "x0 y0 x1 y1..." 2: "x0,y0 x1,y1..."
+        coords = re.split(r"\s|,", polygon.values["points"])
+        xStart = coords[0]
+        zStart = coords[1]
+
+        self.startMilling(gcodeBuilder, xStart, zStart)
+
+        # valid polygon has to have
+        for i in range(2, len(coords), 2):
+            xEnd = coords[i]
+            zEnd = coords[i + 1]
+
+            self.millLine(gcodeBuilder, xEnd, zEnd)
+
+        xEnd = coords[-2]
+        zEnd = coords[-1]
+        self.stopMilling(gcodeBuilder, xEnd, zEnd)
+
+        return gcodeBuilder
 
     def makeCircle(self, circle):
         pass
@@ -222,6 +242,7 @@ class SvgActionProcess:
             if isinstance(element, Line):
                 gcodeBuilder = self.makeLine(element)
 
+            # Polyline and Polygon makers are identical for now
             elif isinstance(element, Polyline):
                 gcodeBuilder = self.makePolyline(element)
 
@@ -235,9 +256,11 @@ class SvgActionProcess:
                 gcodeBuilder = self.makePolygon(element)
 
             elif isinstance(element, Circle):
+                # TODO
                 gcodeBuilder = self.makeCircle(element)
 
             elif isinstance(element, Ellipse):
+                # TODO
                 gcodeBuilder = self.makeEllipse(element)
 
             if gcodeBuilder is not None:
