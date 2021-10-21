@@ -1,0 +1,10 @@
+.console-container {
+  position: absolute;
+  left: -445px;
+  bottom: 5px;
+  width: auto;
+  width: 440px;
+  max-height: 300px;
+  border-radius: 5px;
+  background-color: var(--bs-white);
+}
