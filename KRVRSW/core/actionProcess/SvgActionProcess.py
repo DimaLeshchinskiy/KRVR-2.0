@@ -22,6 +22,9 @@ class SvgActionProcess:
     def offsetg1(self, gcodeBuilder, x, z, y):
         gcodeBuilder.g1(x = x + self.xOffset, z = z + self.zOffset, y = y)
 
+    def offsetg2(self, gcodeBuilder, x, z, y, i, j):
+        gcodeBuilder.g2(x = x + self.xOffset, z = z + self.zOffset, y = y, i = i, j = j)
+
     def startMilling(self, gcodeBuilder, x, z):
         self.offsetg0(gcodeBuilder, x, z, self.materialHeight + 1)
         self.offsetg1(gcodeBuilder, x, z, self.materialHeight - self.millingDepth)
@@ -215,7 +218,31 @@ class SvgActionProcess:
         return gcodeBuilder
 
     def makeCircle(self, circle):
-        pass
+        gcodeBuilder = GrblGcodeBuilder()
+
+        xCenter = circle.values["cx"]
+        zCenter = circle.values["xy"]
+        radius = circle.values["r"]
+
+        xStart = xCenter * (radius * numpy.cos(numpy.pi))
+        zStart = zCenter * (radius * numpy.sin(numpy.pi))
+
+        xEnd = xCenter * (radius * numpy.cos(0))
+        zEnd = zCenter * (radius * numpy.sin(0))
+
+        i = (xCenter - (radius * numpy.cos(numpy.pi))) - xCenter
+        j = (zCenter - (radius * numpy.sin(numpy.pi))) - zCenter
+        
+        y = self.materialHeight - self.millingDepth
+
+        self.startMilling(gcodeBuilder, xStart, zStart)
+
+        self.offsetg2(gcodeBuilder, xEnd, zEnd, y, i, j)
+        self.offsetg2(gcodeBuilder, xStart, zStart, y, i, j)
+
+        self.stopMilling(gcodeBuilder, xStart, zStart)
+
+        return gcodeBuilder
 
     def makeEllipse(self, ellipse):
         pass
