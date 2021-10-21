@@ -5,6 +5,10 @@ import numpy
 import re
 from enum import Enum
 
+import sys
+sys.path.append("../..")
+from util import Util
+
 class SvgActionProcess:
 
     def __init__(self):
@@ -35,10 +39,10 @@ class SvgActionProcess:
     def makeLine(self, line):
         gcodeBuilder = GrblGcodeBuilder()
 
-        xStart = line.values["x1"]
-        zStart = line.values["y1"]
-        xEnd = line.values["x2"]
-        zEnd = line.values["y2"]
+        xStart = float(line.values["x1"])
+        zStart = float(line.values["y1"])
+        xEnd = float(line.values["x2"])
+        zEnd = float(line.values["y2"])
 
         self.startMilling(gcodeBuilder, xStart, zStart)
         self.millLine(gcodeBuilder, xEnd, zEnd)
@@ -90,10 +94,10 @@ class SvgActionProcess:
         if t < 0 or t > 1:
             raise ValueError(f"t must be in range 0 <= t <= 1! (t = {t})")
 
-        resultPoint = numpy.array([0, 0])
+        resultPoint = numpy.array([0.0, 0.0])
         n = len(points) - 1
         for i in range(len(points)):
-            resultPoint += self.comb(n, i) * numpy.power(1 - t, n - i) * numpy.power(t, i) * points[i]
+            resultPoint += points[i] * self.comb(n, i) * numpy.power(1 - t, n - i) * numpy.power(t, i)
 
         return resultPoint
 
@@ -155,16 +159,16 @@ class SvgActionProcess:
 
         for command in parsedDString:
             
-            if isinstance(command, self.PathCommand.LINE):
+            if isinstance(command, self.PathCommand.LINE.value):
                 self.makePathLine(gcodeBuilder, command)
 
-            elif isinstance(command, self.PathCommand.QUAD_BEZIER):
+            elif isinstance(command, self.PathCommand.QUAD_BEZIER.value):
                 self.makeQuadBezier(gcodeBuilder, command)
 
-            elif isinstance(command, self.PathCommand.CUBIC_BEZIER):
+            elif isinstance(command, self.PathCommand.CUBIC_BEZIER.value):
                 self.makeCubicBezier(gcodeBuilder, command)
 
-            elif isinstance(command, self.PathCommand.ARC):
+            elif isinstance(command, self.PathCommand.ARC.value):
                 # TODO
                 self.makeArc(gcodeBuilder, command)
 
@@ -178,10 +182,11 @@ class SvgActionProcess:
     def makeRect(self, rect):
         gcodeBuilder = GrblGcodeBuilder()
 
-        xStart = rect.values["x"]
-        zStart = rect.values["y"]
-        width = xStart + rect.values["width"]
-        height = zStart + rect.values["height"]
+        xStart = float(rect.implicit_x)
+        zStart = float(rect.implicit_y)
+        width = float(rect.values["width"])
+        height = float(rect.values["height"])
+        print(xStart, zStart, width, height)
 
         self.startMilling(gcodeBuilder, xStart, zStart)
 
@@ -247,31 +252,67 @@ class SvgActionProcess:
         self.stopMilling(gcodeBuilder, xStart, zStart)
 
         return gcodeBuilder
+    
+    def getPointOnEllipse(self, rx, ry, angle):
+        return (
+            rx * cos(angle),
+            ry * sin(angle)
+        )
 
     def makeEllipse(self, ellipse):
-        pass
+        gcodeBuilder = GrblGcodeBuilder()
+
+        center = ellipse.implicit_center
+
+        xCenter = float(center[0])
+        zCenter = float(center[1])
+        rx = float(ellipse.values["rx"])
+        ry = float(ellipse.values["ry"])
+
+        points = []
+        i = 0
+        while i < 2 * numpy.pi:
+            point = self.getPointOnEllipse(rx, ry, i)
+            points.append((point[0] + xCenter, point[1] + zCenter))
+            i += numpy.pi / 180
+        
+        self.startMilling(gcodeBuilder, points[0][0], points[0][1])
+        
+        for i in range(1, len(points)):
+            self.millLine(gcodeBuilder, points[i][0], points[i][1])
+        
+        self.stopMilling(gcodeBuilder, points[-1][0], points[-1][1])
+
+        return gcodeBuilder
+
+
+    def saveToTmp(self, data):
+        svgPath = str(Util.getDataFilePath("tmp.svg"))
+        with open(svgPath, 'w') as file:
+            file.write(data)
+        return svgPath
 
     # makes gcode for outline of svg elments (ignores fill)
     # data must be path to .svg file
     def makeGcode(self, data=None, action=None, tool=None, material=None, objectOptions=None) -> GrblGcodeBuilder:
-        self.toolWidth = tool.getFieldValue("width")
-        self.toolLength = tool.getFieldValue("length")
-        self.materialHeight = material.height
-        self.millingDepth = objectOptions["size"]["max"]["y"] * 2
+        self.toolWidth = int(tool.getFieldValue("width"))
+        self.toolLength = int(tool.getFieldValue("length"))
+        self.materialHeight = int(material.height)
+        self.millingDepth = int(action.getFieldValue("depth"))
         # self.curveSmoothness = ?
-        # self.xOffset = ?
-        # self.zOffset = ?
+        self.xOffset = int(objectOptions["position"]["x"])
+        self.zOffset = int(objectOptions["position"]["z"])
         
         mainGcodeBuilder = GrblGcodeBuilder()
 
         # reify = True applies all transforms
         # width, height, viewBox can be changed but at your own risk
-        parsedSvg = SVG.parse(data, reify=True)
+        parsedSvg = SVG.parse(self.saveToTmp(data), reify=True)
 
         for element in parsedSvg.elements():
-
+            print(element)
             gcodeBuilder = None
-            if isinstance(element, Line):
+            if isinstance(element, Line) or isinstance(element, SimpleLine):
                 gcodeBuilder = self.makeLine(element)
 
             # Polyline and Polygon makers are identical for now
