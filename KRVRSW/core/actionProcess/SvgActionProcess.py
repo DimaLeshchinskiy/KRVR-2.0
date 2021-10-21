@@ -12,7 +12,7 @@ class SvgActionProcess:
         self.toolLength = None
         self.materialHeight = None
         self.millingDepth = None
-        self.curveSmothness = 1000
+        self.curveSmothness = 10
         self.xOffset = 0
         self.zOffset = 0
 
@@ -98,11 +98,18 @@ class SvgActionProcess:
         zEnd = line.end.imag
         self.millLine(gcodeBuilder, xEnd, zEnd)
 
+    def pointDistance(self, point1, point2):
+        x1, z1 = point1
+        x2, z2 = point2
+        return numpy.sqrt(numpy.power(x1 - x2, 2) + numpy.power(z1 - z2, 2))
+
     #doesn't mill to the start point (probably chnage for disconected paths)
     def makeBezier(self, gcodeBuilder, points):
 
         t = 0
-        step = 1 / self.curveSmothness
+        # smaller step (more detail) for longer curves
+        # TODO calc for all curve points not just line from start point to end point
+        step = (self.pointDistance(points[0], points[-1]) / 100) *  self.curveSmothness
         while t <= 1:
             xEnd, zEnd = self.bezierCurveFunc(points, t)
             self.millLine(gcodeBuilder, xEnd, zEnd)
@@ -163,8 +170,25 @@ class SvgActionProcess:
 
         return gcodeBuilder
 
+    # dosn't handle rounded corners
     def makeRect(self, rect):
-        pass
+        gcodeBuilder = GrblGcodeBuilder()
+
+        xStart = rect.values["x"]
+        zStart = rect.values["y"]
+        width = xStart + rect.values["width"]
+        height = zStart + rect.values["height"]
+
+        self.startMilling(gcodeBuilder, xStart, zStart)
+
+        self.millLine(gcodeBuilder, xStart + width, zStart)
+        self.millLine(gcodeBuilder, xStart + width, zStart + height)
+        self.millLine(gcodeBuilder, xStart, zStart + height)
+        self.millLine(gcodeBuilder, xStart, zStart)
+
+        self.stopMilling(gcodeBuilder, xStart, zStart)
+
+        return gcodeBuilder
 
     def makePolygon(self, polygon):
         pass
