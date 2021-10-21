@@ -230,15 +230,19 @@ class SvgActionProcess:
         xEnd = xCenter * (radius * numpy.cos(0))
         zEnd = zCenter * (radius * numpy.sin(0))
 
-        i = (xCenter - (radius * numpy.cos(numpy.pi))) - xCenter
-        j = (zCenter - (radius * numpy.sin(numpy.pi))) - zCenter
+        iStart = (xCenter - (radius * numpy.cos(numpy.pi))) - xCenter
+        jStart = (zCenter - (radius * numpy.sin(numpy.pi))) - zCenter
+
+        iEnd = (xCenter - (radius * numpy.cos(0))) - xCenter
+        jEnd = (zCenter - (radius * numpy.sin(0))) - zCenter
+
         
         y = self.materialHeight - self.millingDepth
 
         self.startMilling(gcodeBuilder, xStart, zStart)
 
-        self.offsetg2(gcodeBuilder, xEnd, zEnd, y, i, j)
-        self.offsetg2(gcodeBuilder, xStart, zStart, y, i, j)
+        self.offsetg2(gcodeBuilder, xEnd, zEnd, y, iStart, jStart)
+        self.offsetg2(gcodeBuilder, xStart, zStart, y, iEnd, jEnd)
 
         self.stopMilling(gcodeBuilder, xStart, zStart)
 
