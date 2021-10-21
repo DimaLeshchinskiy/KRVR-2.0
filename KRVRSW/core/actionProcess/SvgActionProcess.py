@@ -59,6 +59,7 @@ class SvgActionProcess:
 
         self.startMilling(gcodeBuilder, xStart, zStart)
 
+        # valid polyline has to have even number of coords
         for i in range(2, len(coords), 2):
             xEnd = coords[i]
             zEnd = coords[i + 1]
@@ -200,7 +201,7 @@ class SvgActionProcess:
 
         self.startMilling(gcodeBuilder, xStart, zStart)
 
-        # valid polygon has to have
+        # valid polygon has to have even number of coords
         for i in range(2, len(coords), 2):
             xEnd = coords[i]
             zEnd = coords[i + 1]
