@@ -1,6 +1,6 @@
 import { fabric } from "fabric";
 
-function RectDraw(canvas, onDrawRect) {
+function RectDraw(canvas, options) {
   var rect, isDown, origX, origY;
 
   const onMouseMove = (o) => {
@@ -35,7 +35,7 @@ function RectDraw(canvas, onDrawRect) {
       height: pointer.y - origY,
       angle: 0,
       stroke: "black",
-      strokeWidth: 5,
+      strokeWidth: options.strokeWidth,
       fill: "rgba(0,0,0,0)",
     });
     canvas.add(rect);
@@ -46,7 +46,7 @@ function RectDraw(canvas, onDrawRect) {
     canvas.off("mouse:move", onMouseMove);
     canvas.off("mouse:down", onMouseDown);
     canvas.off("mouse:up", onMouseUp);
-    onDrawRect();
+    options.onDrawRect();
   };
 
   canvas.isDrawingMode = false;

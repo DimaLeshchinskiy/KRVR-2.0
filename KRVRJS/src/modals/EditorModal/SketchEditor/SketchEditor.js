@@ -12,7 +12,7 @@ import { FileContext } from "@context/file";
 import config from "./config";
 
 function SketchEditor({ handleClose }) {
-  const [canvas, setCanvas] = useState("");
+  const [canvas, setCanvas] = useState(null);
   const [toolMode, setToolMode] = useState(1);
   const [strokeWidth, setStrokeWidth] = useState(3);
 
@@ -20,8 +20,16 @@ function SketchEditor({ handleClose }) {
 
   useEffect(() => {
     setCanvas(initCanvas());
-    setToolMode(1);
   }, []);
+
+  useEffect(() => {
+    if (canvas) changeTool(1);
+  }, [canvas]);
+
+  const handleStrokeWidthChange = (value) => {
+    setStrokeWidth(value);
+    changeTool(toolMode);
+  };
 
   const initCanvas = () => {
     let newCanvas = new fabric.Canvas("canvas", {
@@ -79,14 +87,23 @@ function SketchEditor({ handleClose }) {
     // brush tool
     else if (mode == 1) {
       canvas.isDrawingMode = true;
+      canvas.freeDrawingBrush.width = strokeWidth;
+
+      console.log(canvas.freeDrawingBrush, strokeWidth);
     }
     // circle tool
     else if (mode == 2) {
-      CircleDraw(canvas, () => setToolMode(0));
+      CircleDraw(canvas, {
+        strokeWidth: strokeWidth,
+        onDrawCircle: () => setToolMode(0),
+      });
     }
     // rect tool
     else if (mode == 3) {
-      RectDraw(canvas, () => setToolMode(0));
+      RectDraw(canvas, {
+        strokeWidth: strokeWidth,
+        onDrawRect: () => setToolMode(0),
+      });
     }
     setToolMode(mode);
   };
@@ -129,7 +146,7 @@ function SketchEditor({ handleClose }) {
             id="floatingInputGrid"
             placeholder="f"
             value={strokeWidth}
-            onChange={(e) => setStrokeWidth(e.target.value)}
+            onChange={(e) => handleStrokeWidthChange(parseInt(e.target.value))}
           />
           <label for="floatingInputGrid">stroke</label>
         </div>

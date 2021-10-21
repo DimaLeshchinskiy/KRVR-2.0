@@ -1,6 +1,6 @@
 import { fabric } from "fabric";
 
-function CircleDraw(canvas, onDrawCircle) {
+function CircleDraw(canvas, options) {
   var ellipse, isDown, origX, origY;
 
   const onMouseMove = (o) => {
@@ -44,7 +44,7 @@ function CircleDraw(canvas, onDrawCircle) {
       angle: 0,
       fill: "",
       stroke: "black",
-      strokeWidth: 5,
+      strokeWidth: options.strokeWidth,
       lockRotation: true,
     });
     canvas.add(ellipse);
@@ -55,7 +55,7 @@ function CircleDraw(canvas, onDrawCircle) {
     canvas.off("mouse:move", onMouseMove);
     canvas.off("mouse:down", onMouseDown);
     canvas.off("mouse:up", onMouseUp);
-    onDrawCircle();
+    options.onDrawCircle();
   };
 
   canvas.isDrawingMode = false;
