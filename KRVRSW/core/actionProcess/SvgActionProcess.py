@@ -311,7 +311,7 @@ class SvgActionProcess:
         # width, height, viewBox can be changed but at your own risk
         parsedSvg = SVG.parse(self.saveToTmp(data), reify=True)
 
-        while self.millingDepth < desiredDepth:
+        while self.millingDepth <= desiredDepth:
 
             for element in parsedSvg.elements():
                 print(element)
