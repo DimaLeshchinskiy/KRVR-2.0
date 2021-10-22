@@ -10,7 +10,6 @@ function GhostButtonsUp({
 }) {
   const handleUnitChange = (value) => {
     value = value || 1;
-    console.log(value);
     setUnit(value);
   };
 
