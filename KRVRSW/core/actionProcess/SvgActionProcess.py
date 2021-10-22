@@ -16,7 +16,7 @@ class SvgActionProcess:
         self.toolLength = None
         self.materialHeight = None
         self.millingDepth = None
-        self.curveSmothness = 10
+        self.curveSmothness = 1
         self.xOffset = 0
         self.zOffset = 0
 
@@ -298,8 +298,10 @@ class SvgActionProcess:
         self.toolWidth = int(tool.getFieldValue("width"))
         self.toolLength = int(tool.getFieldValue("length"))
         self.materialHeight = int(material.height)
-        self.millingDepth = int(action.getFieldValue("depth"))
+        self.millingDepth = int(tool.getFieldValue("length")) #int(action.getFieldValue("depth"))
         # self.curveSmoothness = ?
+        desiredDepth = int(action.getFieldValue("depth"))
+
         self.xOffset = int(objectOptions["position"]["x"])
         self.zOffset = int(objectOptions["position"]["z"])
         
@@ -309,35 +311,38 @@ class SvgActionProcess:
         # width, height, viewBox can be changed but at your own risk
         parsedSvg = SVG.parse(self.saveToTmp(data), reify=True)
 
-        for element in parsedSvg.elements():
-            print(element)
-            gcodeBuilder = None
-            if isinstance(element, Line) or isinstance(element, SimpleLine):
-                gcodeBuilder = self.makeLine(element)
+        while self.millingDepth < desiredDepth:
+            for element in parsedSvg.elements():
+                print(element)
+                gcodeBuilder = None
+                if isinstance(element, Line) or isinstance(element, SimpleLine):
+                    gcodeBuilder = self.makeLine(element)
 
-            # Polyline and Polygon makers are identical for now
-            elif isinstance(element, Polyline):
-                gcodeBuilder = self.makePolyline(element)
+                # Polyline and Polygon makers are identical for now
+                elif isinstance(element, Polyline):
+                    gcodeBuilder = self.makePolyline(element)
 
-            elif isinstance(element, Path):
-                gcodeBuilder = self.makePath(element)
+                elif isinstance(element, Path):
+                    gcodeBuilder = self.makePath(element)
 
-            elif isinstance(element, Rect):
-                gcodeBuilder = self.makeRect(element)
+                elif isinstance(element, Rect):
+                    gcodeBuilder = self.makeRect(element)
 
-            elif isinstance(element, Polygon):
-                gcodeBuilder = self.makePolygon(element)
+                elif isinstance(element, Polygon):
+                    gcodeBuilder = self.makePolygon(element)
 
-            elif isinstance(element, Circle):
-                # TODO
-                gcodeBuilder = self.makeCircle(element)
+                elif isinstance(element, Circle):
+                    # TODO
+                    gcodeBuilder = self.makeCircle(element)
 
-            elif isinstance(element, Ellipse):
-                # TODO
-                gcodeBuilder = self.makeEllipse(element)
+                elif isinstance(element, Ellipse):
+                    # TODO
+                    gcodeBuilder = self.makeEllipse(element)
 
-            if gcodeBuilder is not None:
-                mainGcodeBuilder.appendBuilder(gcodeBuilder)
+                if gcodeBuilder is not None:
+                    mainGcodeBuilder.appendBuilder(gcodeBuilder)
+
+            self.millingDepth = min(self.millingDepth + self.toolLength, desiredDepth)
             
 
         # temp solution change later!!!!
