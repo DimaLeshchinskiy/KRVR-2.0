@@ -312,6 +312,7 @@ class SvgActionProcess:
         parsedSvg = SVG.parse(self.saveToTmp(data), reify=True)
 
         while self.millingDepth < desiredDepth:
+
             for element in parsedSvg.elements():
                 print(element)
                 gcodeBuilder = None
@@ -342,10 +343,10 @@ class SvgActionProcess:
                 if gcodeBuilder is not None:
                     mainGcodeBuilder.appendBuilder(gcodeBuilder)
 
+                # temp solution change later!!!!
+                mainGcodeBuilder.g0(x = 0, z = 0, y = self.materialHeight + 1)
+
             self.millingDepth = min(self.millingDepth + self.toolLength, desiredDepth)
             
-
-        # temp solution change later!!!!
-        mainGcodeBuilder.g0(x = 0, z = 0, y = self.materialHeight + 1)
 
         return mainGcodeBuilder
