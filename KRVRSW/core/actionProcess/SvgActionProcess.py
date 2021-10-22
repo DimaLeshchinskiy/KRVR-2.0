@@ -16,14 +16,22 @@ class SvgActionProcess:
         self.toolLength = None
         self.materialHeight = None
         self.millingDepth = None
-        self.curveSmothness = 1
+        self.curveSmothness = 1000
         self.xOffset = 0
         self.zOffset = 0
+        self.usedG1Points = {}
+        self.coordDecimalPoints = 1
 
     def offsetg0(self, gcodeBuilder, x, z, y):
         gcodeBuilder.g0(x = x + self.xOffset, z = z + self.zOffset, y = y)
 
     def offsetg1(self, gcodeBuilder, x, z, y):
+        x = round(x, self.coordDecimalPoints)
+        z = round(z, self.coordDecimalPoints)
+        if f"{x}-{z}" in self.usedG1Points:
+            return
+
+        self.usedG1Points[f"{x}-{z}"] = True
         gcodeBuilder.g1(x = x + self.xOffset, z = z + self.zOffset, y = y)
 
     def offsetg2(self, gcodeBuilder, x, z, y, i, j):
