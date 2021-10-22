@@ -255,8 +255,8 @@ class SvgActionProcess:
     
     def getPointOnEllipse(self, rx, ry, angle):
         return (
-            rx * cos(angle),
-            ry * sin(angle)
+            rx * numpy.cos(angle),
+            ry * numpy.sin(angle)
         )
 
     def makeEllipse(self, ellipse):
@@ -339,5 +339,8 @@ class SvgActionProcess:
             if gcodeBuilder is not None:
                 mainGcodeBuilder.appendBuilder(gcodeBuilder)
             
+
+        # temp solution change later!!!!
+        mainGcodeBuilder.g0(x = 0, z = 0, y = self.materialHeight + 1)
 
         return mainGcodeBuilder
