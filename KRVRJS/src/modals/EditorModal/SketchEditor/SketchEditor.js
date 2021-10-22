@@ -9,6 +9,8 @@ import CircleDraw from "./CircleDraw.js";
 import FileManager from "@managers/fileManager";
 import { FileContext } from "@context/file";
 
+import Dropdown from "react-bootstrap/Dropdown";
+
 import config from "./config";
 
 function SketchEditor({ handleClose }) {
@@ -108,6 +110,21 @@ function SketchEditor({ handleClose }) {
     setToolMode(mode);
   };
 
+  const insertIcon = (elementDom) => {
+    let svgElement = elementDom.getElementsByTagName("svg")[0];
+
+    if (!svgElement) return;
+
+    fabric.loadSVGFromString(svgElement.outerHTML, function (objects, options) {
+      let obj = fabric.util.groupSVGElements(objects, options);
+      obj.scale(10);
+      canvas.add(obj).centerObject(obj).renderAll();
+      obj.setCoords();
+
+      changeTool(0);
+    });
+  };
+
   const exportAsSvg = () => {
     let svg = canvas.toSVG();
     const newFiles = [...files];
@@ -150,6 +167,24 @@ function SketchEditor({ handleClose }) {
           />
           <label for="floatingInputGrid">stroke</label>
         </div>
+        <Dropdown>
+          <Dropdown.Toggle variant="primary" id="dropdown-basic">
+            Insert icon
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            {config.iconsToInsert.map((el, index) => {
+              return (
+                <Dropdown.Item
+                  key={index}
+                  onClick={(e) => insertIcon(e.target)}
+                >
+                  {el.svg} &nbsp; &nbsp;{el.title}
+                </Dropdown.Item>
+              );
+            })}
+          </Dropdown.Menu>
+        </Dropdown>
         <button type="button" class="btn btn-success" onClick={exportAsSvg}>
           Export As Svg
         </button>
