@@ -48,7 +48,12 @@ class ThreeRender extends Component {
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffffff);
-    const gridHelper = new THREE.GridHelper(10000, 1000, 0x888888, 0x444444);
+    const gridHelper = new THREE.GridHelper(
+      10000,
+      1000 / this.props.unit,
+      0x888888,
+      0x444444
+    );
     gridHelper.userData.className = "GridHelper";
     this.scene.add(gridHelper);
 
@@ -247,6 +252,20 @@ class ThreeRender extends Component {
   }
 
   componentDidUpdate() {
+    //change units
+    const oldGrid = this.scene.children.find(
+      (object) => object.userData.className == "GridHelper"
+    );
+    this.scene.remove(oldGrid);
+    const gridHelper = new THREE.GridHelper(
+      10000,
+      1000 / this.props.unit,
+      0x888888,
+      0x444444
+    );
+    gridHelper.userData.className = "GridHelper";
+    this.scene.add(gridHelper);
+
     //setup tool
     this.control.setMode(this.props.editTool);
 

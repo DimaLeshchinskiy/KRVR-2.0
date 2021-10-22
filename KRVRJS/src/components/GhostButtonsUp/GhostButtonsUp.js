@@ -1,6 +1,19 @@
 import "./GhostButtonsUp.css";
 
-function GhostButtonsUp({ is2D, setIs2D, editTool, setEditTool }) {
+function GhostButtonsUp({
+  is2D,
+  setIs2D,
+  editTool,
+  setEditTool,
+  unit,
+  setUnit,
+}) {
+  const handleUnitChange = (value) => {
+    value = value || 1;
+    console.log(value);
+    setUnit(value);
+  };
+
   return (
     <div className="ghostButtonsUp">
       <div className="btn-group" role="group" aria-label="Basic example">
@@ -117,6 +130,41 @@ function GhostButtonsUp({ is2D, setIs2D, editTool, setEditTool }) {
             />
           </svg>
         </label>
+      </div>
+
+      <div className="btn-group unitScale">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text btn-secondary" id="basic-addon1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-rulers"
+              viewBox="0 0 16 16"
+            >
+              <path d="M1 0a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-1H2v-1h4v-1H4v-1h2v-1H2v-1h4V9H4V8h2V7H2V6h4V2h1v4h1V4h1v2h1V2h1v4h1V4h1v2h1V2h1v4h1V1a1 1 0 0 0-1-1H1z" />
+            </svg>
+            &nbsp; 1:
+          </span>
+          <input
+            class="form-control"
+            list="datalistOptions"
+            id="exampleDataList"
+            type="number"
+            value={unit}
+            onChange={(e) => handleUnitChange(e.target.value)}
+            min="1"
+            max="1000"
+            step="1"
+          />
+          <datalist id="datalistOptions">
+            <option value="1">Millimeters</option>
+            <option value="10">Centimeters</option>
+            <option value="100">Decimeters</option>
+            <option value="1000">Meters</option>
+          </datalist>
+        </div>
       </div>
     </div>
   );

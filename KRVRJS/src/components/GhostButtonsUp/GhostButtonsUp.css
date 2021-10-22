@@ -7,3 +7,7 @@
 .ghostButtonsUp .btn-group {
   margin-right: 3px;
 }
+
+.btn-group.unitScale {
+  width: 110px;
+}

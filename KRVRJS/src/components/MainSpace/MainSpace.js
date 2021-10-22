@@ -8,14 +8,17 @@ import React, { useState } from "react";
 function MainSpace() {
   const [is2D, setIs2D] = useState(false);
   const [editTool, setEditTool] = useState("translate");
+  const [unit, setUnit] = useState(1);
 
   return (
     <div>
       <GhostButtonsUp
         is2D={is2D}
         editTool={editTool}
+        unit={unit}
         setIs2D={setIs2D}
         setEditTool={setEditTool}
+        setUnit={setUnit}
       />
 
       <GhostButtonsDown
@@ -29,6 +32,7 @@ function MainSpace() {
         editTool={editTool}
         setIs2D={setIs2D}
         setEditTool={setEditTool}
+        unit={unit}
       />
     </div>
   );
