@@ -8,3 +8,8 @@
   border-radius: 5px;
   background-color: var(--bs-white);
 }
+
+.console-container .accordion-collapse {
+  overflow-y: scroll;
+  max-height: 250px;
+}
