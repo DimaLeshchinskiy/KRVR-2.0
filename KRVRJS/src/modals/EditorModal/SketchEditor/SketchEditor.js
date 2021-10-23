@@ -20,6 +20,9 @@ function SketchEditor({ handleClose }) {
 
   const { files, setFiles } = useContext(FileContext);
 
+  const [workspaceWidth, setWorkspaceWidth] = useState(60);
+  const [workspaceHeight, setWorkspaceHeight] = useState(40);
+
   useEffect(() => {
     setCanvas(initCanvas());
   }, []);
@@ -40,6 +43,26 @@ function SketchEditor({ handleClose }) {
       isDrawingMode: false,
     });
 
+    var bg = new fabric.Rect({
+      width: workspaceWidth,
+      height: workspaceHeight,
+      stroke: "red",
+      strokeWidth: 1,
+      fill: "",
+      evented: false,
+      selectable: false,
+      id: "my-workspace",
+    });
+
+    newCanvas.add(bg);
+
+    // TODO - rewrite
+    newCanvas.setZoom(9);
+    var vpt = newCanvas.viewportTransform;
+    vpt[4] = (newCanvas.getWidth() - workspaceWidth * 9) / 2;
+    vpt[5] = (newCanvas.getHeight() - workspaceHeight * 9) / 2;
+    // TODO - rewrite
+
     newCanvas.on("mouse:wheel", function (opt) {
       var delta = opt.e.deltaY;
       var zoom = newCanvas.getZoom();
@@ -49,8 +72,23 @@ function SketchEditor({ handleClose }) {
       newCanvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
       opt.e.preventDefault();
       opt.e.stopPropagation();
+      var vpt = this.viewportTransform;
+      if (zoom < newCanvas.getHeight() / workspaceHeight) {
+        vpt[4] = (newCanvas.getWidth() - workspaceWidth * zoom) / 2;
+        vpt[5] = (newCanvas.getHeight() - workspaceHeight * zoom) / 2;
+      } else {
+        if (vpt[4] >= 0) {
+          vpt[4] = 0;
+        } else if (vpt[4] <= newCanvas.getWidth() - workspaceWidth * zoom) {
+          vpt[4] = newCanvas.getWidth() - workspaceWidth * zoom;
+        }
+        if (vpt[5] >= 0) {
+          vpt[5] = 0;
+        } else if (vpt[5] <= newCanvas.getHeight() - workspaceHeight * zoom) {
+          vpt[5] = newCanvas.getHeight() - workspaceHeight * zoom;
+        }
+      }
     });
-
     newCanvas.on("mouse:down", function (opt) {
       var evt = opt.e;
       if (evt.altKey === true) {
@@ -63,12 +101,34 @@ function SketchEditor({ handleClose }) {
     newCanvas.on("mouse:move", function (opt) {
       if (this.isDragging) {
         var e = opt.e;
+        var zoom = newCanvas.getZoom();
         var vpt = this.viewportTransform;
-        vpt[4] += e.clientX - this.lastPosX;
-        vpt[5] += e.clientY - this.lastPosY;
+        if (zoom < newCanvas.getHeight() / workspaceHeight) {
+          vpt[4] = (newCanvas.getWidth() - workspaceWidth * zoom) / 2;
+          vpt[5] = (newCanvas.getHeight() - workspaceHeight * zoom) / 2;
+        } else {
+          vpt[4] += e.clientX - this.lastPosX;
+          vpt[5] += e.clientY - this.lastPosY;
+          if (vpt[4] >= 0) {
+            vpt[4] = 0;
+          } else if (
+            vpt[4] <=
+            newCanvas.getWidth() - workspaceWidth * zoom - 400
+          ) {
+            vpt[4] = newCanvas.getWidth() - workspaceWidth * zoom - 400;
+          }
+          if (vpt[5] >= 0) {
+            vpt[5] = 0;
+          } else if (
+            vpt[5] <=
+            newCanvas.getHeight() - workspaceHeight * zoom - 400
+          ) {
+            vpt[5] = newCanvas.getHeight() - workspaceHeight * zoom - 400;
+          }
+        }
+        this.requestRenderAll();
         this.lastPosX = e.clientX;
         this.lastPosY = e.clientY;
-        this.requestRenderAll();
       }
     });
     newCanvas.on("mouse:up", function (opt) {
@@ -77,10 +137,13 @@ function SketchEditor({ handleClose }) {
       this.selection = true;
     });
 
+    newCanvas.requestRenderAll();
+
     return newCanvas;
   };
 
   const changeTool = (mode) => {
+    canvas.off("selection:created", deleteElement);
     // hand tool
     if (mode == 0) {
       canvas.isDrawingMode = false;
@@ -90,8 +153,6 @@ function SketchEditor({ handleClose }) {
     else if (mode == 1) {
       canvas.isDrawingMode = true;
       canvas.freeDrawingBrush.width = strokeWidth;
-
-      console.log(canvas.freeDrawingBrush, strokeWidth);
     }
     // circle tool
     else if (mode == 2) {
@@ -107,6 +168,12 @@ function SketchEditor({ handleClose }) {
         onDrawRect: () => setToolMode(0),
       });
     }
+    // delete tool
+    else if (mode == 4) {
+      canvas.isDrawingMode = false;
+      canvas.selection = true;
+      canvas.on("selection:created", deleteElement);
+    }
     setToolMode(mode);
   };
 
@@ -117,16 +184,27 @@ function SketchEditor({ handleClose }) {
 
     fabric.loadSVGFromString(svgElement.outerHTML, function (objects, options) {
       let obj = fabric.util.groupSVGElements(objects, options);
-      obj.scale(10);
-      canvas.add(obj).centerObject(obj).renderAll();
-      obj.setCoords();
+      canvas.add(obj).renderAll();
 
       changeTool(0);
     });
   };
 
+  const deleteElement = (e) => {
+    console.log(e);
+    e.selected.forEach((element) => {
+      canvas.remove(element);
+    });
+  };
+
   const exportAsSvg = () => {
+    const canvasObject = canvas.getObjects().find((item) => {
+      console.log(item, item.id);
+      return item.id == "my-workspace";
+    });
+    canvas.remove(canvasObject);
     let svg = canvas.toSVG();
+    console.log(svg);
     const newFiles = [...files];
 
     let file = new File([svg], "mySvg.svg", {
