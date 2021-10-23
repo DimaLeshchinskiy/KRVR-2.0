@@ -21,6 +21,7 @@ class SvgActionProcess:
         self.zOffset = 0
         self.usedG1Points = {}
         self.coordDecimalPoints = 1
+        self.ignore = {"my-workspace"}
 
     def offsetg0(self, gcodeBuilder, x, z, y):
         gcodeBuilder.g0(x = x + self.xOffset, z = z + self.zOffset, y = y)
@@ -308,7 +309,7 @@ class SvgActionProcess:
         self.materialHeight = int(material.height)
 
         desiredDepth = int(action.getFieldValue("depth"))
-        self.millingDepth = min(int(tool.getFieldValue("length")), desiredDepth)#int(action.getFieldValue("depth"))
+        self.millingDepth = min(self.toolLength, desiredDepth)#int(action.getFieldValue("depth"))
         # self.curveSmoothness = ?
 
         self.xOffset = int(objectOptions["position"]["x"])
@@ -324,6 +325,10 @@ class SvgActionProcess:
 
             for element in parsedSvg.elements():
                 print(element)
+
+                if "id" in element.values and element.values["id"] in self.ignore:
+                    continue
+
                 gcodeBuilder = None
                 if isinstance(element, Line) or isinstance(element, SimpleLine):
                     gcodeBuilder = self.makeLine(element)
@@ -352,8 +357,8 @@ class SvgActionProcess:
                 if gcodeBuilder is not None:
                     mainGcodeBuilder.appendBuilder(gcodeBuilder)
 
-                # temp solution change later!!!!
-                mainGcodeBuilder.g0(x = 0, z = 0, y = self.materialHeight + 1)
+            # temp solution change later!!!!
+            mainGcodeBuilder.g0(x = 0, z = 0, y = self.materialHeight + 1)
 
             self.usedG1Points = {}
 
