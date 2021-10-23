@@ -306,9 +306,10 @@ class SvgActionProcess:
         self.toolWidth = int(tool.getFieldValue("width"))
         self.toolLength = int(tool.getFieldValue("length"))
         self.materialHeight = int(material.height)
-        self.millingDepth = int(tool.getFieldValue("length")) #int(action.getFieldValue("depth"))
-        # self.curveSmoothness = ?
+
         desiredDepth = int(action.getFieldValue("depth"))
+        self.millingDepth = min(int(tool.getFieldValue("length")), desiredDepth)#int(action.getFieldValue("depth"))
+        # self.curveSmoothness = ?
 
         self.xOffset = int(objectOptions["position"]["x"])
         self.zOffset = int(objectOptions["position"]["z"])
@@ -319,7 +320,7 @@ class SvgActionProcess:
         # width, height, viewBox can be changed but at your own risk
         parsedSvg = SVG.parse(self.saveToTmp(data), reify=True)
 
-        while self.millingDepth <= desiredDepth:
+        while True:
 
             for element in parsedSvg.elements():
                 print(element)
@@ -353,6 +354,11 @@ class SvgActionProcess:
 
                 # temp solution change later!!!!
                 mainGcodeBuilder.g0(x = 0, z = 0, y = self.materialHeight + 1)
+
+            self.usedG1Points = {}
+
+            if self.millingDepth >= desiredDepth:
+                break
 
             self.millingDepth = min(self.millingDepth + self.toolLength, desiredDepth)
             
