@@ -126,7 +126,8 @@ class SvgActionProcess:
         t = 0
         # smaller step (more detail) for longer curves
         # TODO calc for all curve points not just line from start point to end point
-        step = (self.pointDistance(points[0], points[-1]) / 100) *  self.curveSmothness
+        # step = (self.pointDistance(points[0], points[-1]) / 100) *  self.curveSmothness
+        step = 0.01
         while t <= 1:
             xEnd, zEnd = self.bezierCurveFunc(points, t)
             self.millLine(gcodeBuilder, xEnd, zEnd)
@@ -356,9 +357,6 @@ class SvgActionProcess:
 
                 if gcodeBuilder is not None:
                     mainGcodeBuilder.appendBuilder(gcodeBuilder)
-
-            # temp solution change later!!!!
-            mainGcodeBuilder.g0(x = 0, z = 0, y = self.materialHeight + 1)
 
             self.usedG1Points = {}
 
