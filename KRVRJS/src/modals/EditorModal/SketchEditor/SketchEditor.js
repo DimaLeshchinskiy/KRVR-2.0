@@ -10,7 +10,6 @@ import FileManager from "@managers/fileManager";
 import { FileContext } from "@context/file";
 
 import Dropdown from "react-bootstrap/Dropdown";
-
 import config from "./config";
 
 function SketchEditor({ handleClose }) {
@@ -32,6 +31,8 @@ function SketchEditor({ handleClose }) {
   }, [canvas]);
 
   const handleStrokeWidthChange = (value) => {
+    // TODO
+    return;
     setStrokeWidth(value);
     changeTool(toolMode);
   };
@@ -57,10 +58,13 @@ function SketchEditor({ handleClose }) {
     newCanvas.add(bg);
 
     // TODO - rewrite
-    newCanvas.setZoom(9);
+    let newZoom = newCanvas.getWidth() / workspaceWidth;
+    newCanvas.setZoom(newZoom - newZoom * 0.1);
     var vpt = newCanvas.viewportTransform;
-    vpt[4] = (newCanvas.getWidth() - workspaceWidth * 9) / 2;
-    vpt[5] = (newCanvas.getHeight() - workspaceHeight * 9) / 2;
+    vpt[4] =
+      (newCanvas.getWidth() - workspaceWidth * (newZoom - newZoom * 0.1)) / 2;
+    vpt[5] =
+      (newCanvas.getHeight() - workspaceHeight * (newZoom - newZoom * 0.1)) / 2;
     // TODO - rewrite
 
     newCanvas.on("mouse:wheel", function (opt) {
@@ -138,13 +142,12 @@ function SketchEditor({ handleClose }) {
     });
 
     newCanvas.requestRenderAll();
-
     return newCanvas;
   };
 
   const changeTool = (mode) => {
-    canvas.off("selection:created", deleteElement);
     // hand tool
+    canvas.__eventListeners["selection:created"] = [];
     if (mode == 0) {
       canvas.isDrawingMode = false;
       canvas.selection = true;
@@ -172,6 +175,12 @@ function SketchEditor({ handleClose }) {
     else if (mode == 4) {
       canvas.isDrawingMode = false;
       canvas.selection = true;
+
+      //remove all selected
+      canvas.getActiveObjects().forEach((element) => {
+        canvas.remove(element);
+      });
+
       canvas.on("selection:created", deleteElement);
     }
     setToolMode(mode);
@@ -191,7 +200,6 @@ function SketchEditor({ handleClose }) {
   };
 
   const deleteElement = (e) => {
-    console.log(e);
     e.selected.forEach((element) => {
       canvas.remove(element);
     });
