@@ -2,7 +2,7 @@ import FileManager from "@managers/fileManager";
 import api from "@config/api.js";
 
 var _options = {
-  feedRate: 100,
+  feedRate: 200,
   power: 255,
 };
 
