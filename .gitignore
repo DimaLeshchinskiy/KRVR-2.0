@@ -2,3 +2,7 @@
 /install/**.rar
 __pycache__/
 /KRVRSW/public/**
+build/
+dist/
+*.pyc
+*.pyo
