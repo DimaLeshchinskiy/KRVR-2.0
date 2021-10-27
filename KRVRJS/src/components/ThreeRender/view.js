@@ -49,7 +49,7 @@ class ThreeRender extends Component {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffffff);
     const gridHelper = new THREE.GridHelper(
-      10000,
+      1000,
       1000 / this.props.unit,
       0x888888,
       0x444444
@@ -258,7 +258,7 @@ class ThreeRender extends Component {
     );
     this.scene.remove(oldGrid);
     const gridHelper = new THREE.GridHelper(
-      10000,
+      1000,
       1000 / this.props.unit,
       0x888888,
       0x444444

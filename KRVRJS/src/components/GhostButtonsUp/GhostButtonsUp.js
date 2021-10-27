@@ -9,7 +9,10 @@ function GhostButtonsUp({
   setUnit,
 }) {
   const handleUnitChange = (value) => {
-    value = value || 1;
+    value = parseInt(value);
+    if (isNaN(value) || value == 0) value = 1;
+    else if (value < 0) value = Math.abs(value);
+    else if (value > 1000) value = 1000;
     setUnit(value);
   };
 
