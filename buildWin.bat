@@ -1,1 +1,1 @@
-pyinstaller --windowed --add-data "./KRVRSW/data;data" --add-data "./KRVRSW/public;public" ./KRVRSW/main.py
+pyinstaller --windowed --hidden-import engineio.async_drivers.threading --add-data "./KRVRSW/data;data" --add-data "./KRVRSW/public;public" ./KRVRSW/main.py
